@@ -8,6 +8,8 @@ object Interpreters {
     def parseInt(s: String) = Try(s.toInt)
 
     def divide(dividend: Float, divisor: Float): Try[Float] = Try(dividend / divisor)
+
+    override def divide2: Try[Float] = Try(1.0f)
   }
 
   implicit object tryInterpreter2 extends FooAlg[Try] {

@@ -159,6 +159,13 @@ class Utils[C <: whitebox.Context](val c: C) { self =>
       }
     }
 
+    lazy val defWithoutParams: Seq[Tree] =
+      body.collect {
+        case q"def $methodName[..$mTParams]: $resultType" =>
+          val (newResultType, newImpl) = covariantTransform(resultType, q"$from.$methodName")
+          q"""def $methodName[..$mTParams]: $newResultType = $newImpl"""
+      }
+
     def arguments(params: Seq[ValDef]): Seq[TermName] =
       params.map(p => p.name)
 
@@ -172,7 +179,7 @@ class Utils[C <: whitebox.Context](val c: C) { self =>
           val (newResultType, newImpl) =
             covariantTransform(resultType, q"$from.$methodName(..${arguments(params)})(..${arguments(params2)})")
           q"""def $methodName[..$mTParams](..$params)(..$params2): $newResultType = $newImpl"""
-      } //++ defWithoutParams
+      } ++ defWithoutParams
 
     def autoDerivationDef: Tree =
       q"""
