@@ -4,12 +4,11 @@ ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "com.dispalt"
 
 val vAll = Versions(versions, libraries, scalacPlugins)
-val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
+val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
 lazy val root = (project in file("."))
-  .settings(
-    noPublishSettings,
-  )
+  .settings(noPublishSettings)
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
   .aggregate(macros, tests)
 
 lazy val macros = (project in file("macros"))
@@ -24,11 +23,8 @@ lazy val macros = (project in file("macros"))
   .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
 
 lazy val tests = (project in file("tests"))
-  .settings(
-    name := "tagless-redux-tests",
-    noPublishSettings,
-    macroSettings,
-  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(name := "tagless-redux-tests", noPublishSettings, macroSettings)
   .settings(addCompilerPlugins(vAll, "kind-projector"))
   .dependsOn(macros % "compile->compile;test->test")
 
@@ -39,14 +35,18 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
+lazy val buildSettings = sharedBuildSettings(gh, vAll) ++ Seq(crossScalaVersions := Seq(scalaVersion.value))
+
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
   scalaVersion := vAll.vers("scalac_2.12"),
   crossScalaVersions := Seq(scalaVersion.value),
-  developers := List(Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com")))
-) ++ scalacAllSettings ++ unidocCommonSettings ++
+  developers := List(
+    Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
+  )
+) ++
+  scalacAllSettings ++
+  unidocCommonSettings ++
   addCompilerPlugins(vAll, "kind-projector")
-
-lazy val buildSettings = sharedBuildSettings(gh, vAll)
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess
