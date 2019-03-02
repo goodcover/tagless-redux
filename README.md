@@ -7,5 +7,10 @@ of that, this is basically a straight copy from the cats-tagless project, but do
 
 Reflect macros will most likely live through the 2.x series, scalameta macros are dead.
 
+So thank you [Kailuo Wang](http://kailuowang.com)
+
+### License
+Apache 2
+
 ### TODO
 - [ ] Get the library extensions with intellij going.  [Read more about it](https://github.com/JetBrains/intellij-scala/wiki/Library-Extensions)
