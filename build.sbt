@@ -6,15 +6,18 @@ ThisBuild / organization := "com.dispalt"
 val vAll = Versions(versions, libraries, scalacPlugins)
 val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
+val taglessV = "0.2.0"
+val chillV   = "0.9.1"
+
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`)
 
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies += "org.typelevel" %% "cats-tagless-core" % "0.2.0",
+    libraryDependencies += "org.typelevel" %% "cats-tagless-core" % taglessV,
     macroSettings,
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -27,6 +30,29 @@ lazy val tests = (project in file("tests"))
   .settings(name := "tagless-redux-tests", noPublishSettings, macroSettings)
   .settings(addCompilerPlugins(vAll, "kind-projector"))
   .dependsOn(macros % "compile->compile;test->test")
+
+lazy val `encoder-macros` = (project in file("encoder-macros"))
+  .settings(
+    name := "tagless-redux-encoder-macros",
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV),
+    macroSettings,
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(addLibs(vAll, "cats-core"))
+  .settings(addCompilerPlugins(vAll, "kind-projector"))
+  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+
+lazy val `encoder-kryo` = (project in file("encoder-kryo"))
+  .settings(
+    name := "tagless-redux-encoder-kryo",
+    libraryDependencies ++= Seq("com.twitter" %% "chill-bijection" % chillV),
+    macroSettings,
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(simulacrumSettings(vAll))
+  .settings(addCompilerPlugins(vAll, "kind-projector"))
+  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .dependsOn(`encoder-macros`, macros % "test->test")
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),

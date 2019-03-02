@@ -1,0 +1,9 @@
+#-J-XX:+PrintGCDetails
+-J-Xms1024M
+-J-Xmx4096M
+#-J-XX:+UseG1GC
+#-J-XX:+UseParallelGC
+#-J-XX:+UseSerialGC
+-J-XX:ReservedCodeCacheSize=512M
+-J-XX:MaxMetaspaceSize=1024M
+-J-Xss64m
