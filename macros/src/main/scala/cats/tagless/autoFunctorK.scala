@@ -5,7 +5,7 @@ import scala.reflect.macros.whitebox
 import scala.language.experimental.macros
 
 /**
-  * auto generates an instance of [[FunctorK]]
+  * auto generates an instance of autoFunctorK
   */
 @compileTimeOnly("Cannot expand @autoFunctorK")
 class autoFunctorK(autoDerivation: Boolean = true, finalAlg: Boolean = false) extends StaticAnnotation {
