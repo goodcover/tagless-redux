@@ -2,10 +2,13 @@ package com.dispalt.tagless
 
 import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 
 class FunctorKInjector extends SyntheticMembersInjector {
   import FunctorKInjector._
@@ -42,8 +45,8 @@ object FunctorKInjector {
   /** (tpNames, returnType) */
   private def typeParams(clazz: ScTypeDefinition) = {
     val effectParam = clazz.typeParameters.collectFirst {
-      case f if f.isHigherKindedTypeParameter => f
-    } orElse clazz.typeParameters.lastOption
+      case t if t.typeParameters.nonEmpty => t
+    }
 
     effectParam.map { effP =>
       // Don't know how to compute
@@ -54,17 +57,16 @@ object FunctorKInjector {
       }
 
       val tpText = clazz.typeParameters.filterNot(_ == effP) match {
-        //(_ == effP).map(_.typeParameterText).mkString(",")
         case Seq() => s"${clazz.qualifiedName}"
         case _ =>
           val tpes = clazz.typeParameters.map { tp =>
             if (tp == effP) {
-              "?[_]"
-            } else tp.typeParameterText
-
+              "Ƒ"
+            } else {
+              tp.name
+            }
           }
-
-          s"${clazz.qualifiedName}[${tpes.mkString(",")}]"
+          s"({type λ[Ƒ[_]] = ${clazz.qualifiedName}[${tpes.mkString(",")}]})#λ"
       }
 
       (tpName, tpText)
