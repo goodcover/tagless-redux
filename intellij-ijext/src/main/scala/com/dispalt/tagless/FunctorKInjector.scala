@@ -18,7 +18,7 @@ class FunctorKInjector extends SyntheticMembersInjector {
 
     companionClass match {
       case clazz: ScClass =>
-        FunctorKInjector.mkFunctions(clazz, clazz.findAnnotationNoAliases("cats.tagless.autoFunctorK"))
+        FunctorKInjector.mkFunctions(clazz, source.findAnnotation("cats.tagless.autoFunctorK"))
       case _ => Seq.empty
     }
   }

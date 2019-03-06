@@ -55,6 +55,9 @@ object FunctorKInstanceGenerator {
       case Nil => c.abort(c.enclosingPosition, "Expecting a trait.")
 
     }
+    if (System.getProperty("tagless.macro.debug", "false") == "true") {
+      println(showCode(Block(result, Literal(Constant(())))))
+    }
     c.Expr[Any](Block(result, Literal(Constant(()))))
   }
 

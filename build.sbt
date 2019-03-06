@@ -23,6 +23,19 @@ lazy val macros = (project in file("macros"))
     name := "tagless-redux-macros",
     libraryDependencies += "org.typelevel" %% "cats-tagless-core" % taglessV,
     macroSettings,
+    resourceGenerators in Compile += Def.task {
+      val rootFolder = (resourceManaged in Compile).value / "META-INF"
+      rootFolder.mkdirs()
+
+      IO.write(
+        rootFolder / "intellij-compat.json",
+        s"""{
+         |  "artifact": "com.dispalt % tagless-redux-ijext_2.12 % ${version.value}"
+         |}""".stripMargin
+      )
+
+      Seq(rootFolder / "intellij-compat.json")
+    },
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
   .settings(addLibs(vAll, "cats-core"))
