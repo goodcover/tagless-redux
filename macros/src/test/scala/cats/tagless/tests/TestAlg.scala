@@ -3,11 +3,7 @@ package cats.tagless.tests
 import cats.tagless.autoFunctorK
 
 @autoFunctorK
-trait TestAlg[F[_]] {
+trait TestAlg[F[_], T] {
   def more(i: Int): F[Int]
-}
-
-@autoFunctorK
-trait FooAlg[F[_]] {
-  def more(i: Int): F[Int]
+  def more2(i: Int): T
 }

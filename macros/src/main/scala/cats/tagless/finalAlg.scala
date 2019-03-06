@@ -15,7 +15,7 @@ object FinalAlgInstanceGenerator {
 
     val result = annottees.map(_.tree).toList match {
       case classDef :: tail =>
-        val utils = new Utils[c.type](c).process(classDef, false)
+        val utils = new Utils[c.type](c).processAnnotation(classDef, false)
         tail match {
           case q"..$mods object $objName extends { ..$objEarlyDefs } with ..$objParents { $objSelf => ..$objDefs }" :: Nil =>
             val newBody = utils.applyInstanceDef

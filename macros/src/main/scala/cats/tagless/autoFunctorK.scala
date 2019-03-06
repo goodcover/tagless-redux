@@ -1,7 +1,7 @@
 package cats.tagless
 
 import scala.annotation.{compileTimeOnly, StaticAnnotation}
-import scala.reflect.macros.whitebox
+import scala.reflect.macros.blackbox
 import scala.language.experimental.macros
 
 /**
@@ -15,7 +15,7 @@ class autoFunctorK(autoDerivation: Boolean = true, finalAlg: Boolean = false) ex
 
 object FunctorKInstanceGenerator {
 
-  def functorKImpl(c: whitebox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
+  def functorKImpl(c: blackbox.Context)(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
     // Get value of autoDerivation
@@ -28,7 +28,7 @@ object FunctorKInstanceGenerator {
 
     val result = annottees.map(_.tree).toList match {
       case classDef :: tail =>
-        val utils = new Utils[c.type](c).process(classDef, autoDerivation)
+        val utils = new Utils[c.type](c).processAnnotation(classDef, autoDerivation)
 
         val instanceDef = utils.newDef ::: (if (finalAlg) utils.applyInstanceDef else Nil)
 

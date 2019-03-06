@@ -9,10 +9,14 @@ val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = 
 val taglessV = "0.2.0"
 val chillV   = "0.9.1"
 
+ideaExternalPlugins in ThisBuild := Seq.empty
+ideaPluginName in ThisBuild := "tagless-redux-ijext"
+ideaBuild in ThisBuild := "183.4886.37"
+
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`)
 
 lazy val macros = (project in file("macros"))
   .settings(
@@ -53,6 +57,15 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(addCompilerPlugins(vAll, "kind-projector"))
   .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
   .dependsOn(`encoder-macros`, macros % "test->test")
+
+lazy val `intellij-ijext` = (project in file("intellij-ijext"))
+  .enablePlugins(SbtIdeaPlugin)
+  .settings(
+    name := "tagless-redux-ijext",
+    ideaPluginName := name.value,
+    ideaBuild := "183.4886.37",
+    ideaExternalPlugins += IdeaPlugin.Id("Scala", "org.intellij.scala", None)
+  )
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),

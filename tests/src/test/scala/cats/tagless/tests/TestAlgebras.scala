@@ -10,10 +10,8 @@ object Interpreters {
     def divide(dividend: Float, divisor: Float): Try[Float] = Try(dividend / divisor)
 
     override def divide2: Try[Float] = Try(1.0f)
-  }
 
-  implicit object tryInterpreter2 extends FooAlg[Try] {
-    override def more(i: Int): Try[Int] = Try(i)
+    override def divide3: Float = 0.0f
   }
 
 }
