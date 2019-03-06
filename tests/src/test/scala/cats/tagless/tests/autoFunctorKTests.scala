@@ -7,6 +7,7 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   import autoFunctorKTests._
 
   test("simple mapk") {
+    //
     val optionParse: SafeAlg[Option] = Interpreters.tryInterpreter.mapK(fk)
 
     optionParse.parseInt("3") should be(Some(3))

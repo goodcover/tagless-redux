@@ -118,9 +118,9 @@ class Utils[C <: blackbox.Context](val c: C) { self =>
 
     lazy val instanceMapKDef: Tree = {
       q"""
-            def mapK[F[_], G[_]]($from: ${newTypeSig("F")})(fk: _root_.cats.~>[F, G]): ${newTypeSig("G")} =
-              ${newInstance(newTypeMember(from))}
-          """
+         def mapK[F[_], G[_]]($from: ${newTypeSig("F")})(fk: _root_.cats.~>[F, G]): ${newTypeSig("G")} =
+           ${newInstance(newTypeMember(from))}
+       """
     }
 
     lazy val typeLambdaVaryingHigherKindedEffect =

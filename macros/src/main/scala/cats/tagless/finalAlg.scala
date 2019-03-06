@@ -27,7 +27,6 @@ object FinalAlgInstanceGenerator {
             List(classDef, newObj)
 
           case Nil =>
-            println("No new body finalAlg")
             val newBody = utils.applyInstanceDef
             val newObj  = q"""object ${utils.className.toTermName} {
                   ..$newBody
@@ -39,6 +38,9 @@ object FinalAlgInstanceGenerator {
     }
 //    println(showCode(result))
 //    result
+    if (System.getProperty("tagless.macro.debug", "false") == "true") {
+      println(showCode(Block(result, Literal(Constant(())))))
+    }
     c.Expr[Any](Block(result, Literal(Constant(()))))
   }
 }

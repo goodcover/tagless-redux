@@ -2,6 +2,7 @@ package cats.tagless.tests
 
 import cats.tagless.autoFunctorK
 
+//
 @autoFunctorK(autoDerivation = false, finalAlg = true)
 trait SafeAlg[F[_]] {
   def parseInt(i: String): F[Int]

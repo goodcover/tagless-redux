@@ -157,6 +157,9 @@ abstract class EncoderGeneratorMacro {
     }
     val classCompanion = List(base, newCompanion)
     val completeResult = Block(classCompanion, Literal(Constant(())))
+    if (System.getProperty("tagless.macro.debug", "false") == "true") {
+      println(showCode(completeResult))
+    }
     completeResult
   }
 }
