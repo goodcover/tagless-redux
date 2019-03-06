@@ -27,12 +27,9 @@ lazy val macros = (project in file("macros"))
       val rootFolder = (resourceManaged in Compile).value / "META-INF"
       rootFolder.mkdirs()
 
-      IO.write(
-        rootFolder / "intellij-compat.json",
-        s"""{
+      IO.write(rootFolder / "intellij-compat.json", s"""{
          |  "artifact": "com.dispalt % tagless-redux-ijext_2.12 % ${version.value}"
-         |}""".stripMargin
-      )
+         |}""".stripMargin)
 
       Seq(rootFolder / "intellij-compat.json")
     },
@@ -73,6 +70,7 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
 
 lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .enablePlugins(SbtIdeaPlugin)
+  .settings(commonSettings ++ publishSettings)
   .settings(
     name := "tagless-redux-ijext",
     ideaPluginName := name.value,
@@ -87,7 +85,7 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
-lazy val buildSettings = sharedBuildSettings(gh, vAll) ++ Seq(crossScalaVersions := Seq(scalaVersion.value))
+lazy val buildSettings = sharedBuildSettings(gh, vAll) ++ Seq(crossScalaVersions := Seq(scalaVersion.value)) ++ scalacAllSettings
 
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
@@ -97,7 +95,6 @@ lazy val commonSettings = sharedCommonSettings ++ Seq(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   )
 ) ++
-  scalacAllSettings ++
   unidocCommonSettings ++
   addCompilerPlugins(vAll, "kind-projector")
 
