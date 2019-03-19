@@ -8,6 +8,7 @@ val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = 
 
 val taglessV = "0.2.0"
 val chillV   = "0.9.1"
+val akkaV    = "2.5.21"
 
 ideaExternalPlugins in ThisBuild := Seq.empty
 ideaPluginName in ThisBuild := "tagless-redux-ijext"
@@ -16,7 +17,7 @@ ideaBuild in ThisBuild := "183.4886.37"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-akka`)
 
 lazy val macros = (project in file("macros"))
   .settings(
@@ -60,6 +61,18 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
     libraryDependencies ++= Seq("com.twitter" %% "chill-bijection" % chillV),
+    macroSettings,
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(simulacrumSettings(vAll))
+  .settings(addCompilerPlugins(vAll, "kind-projector"))
+  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .dependsOn(`encoder-macros`, macros % "test->test")
+
+lazy val `encoder-akka` = (project in file("encoder-akka"))
+  .settings(
+    name := "tagless-redux-encoder-akka",
+    libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % akkaV),
     macroSettings,
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)

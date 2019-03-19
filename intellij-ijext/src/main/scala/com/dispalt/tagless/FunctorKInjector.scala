@@ -20,7 +20,7 @@ class FunctorKInjector extends SyntheticMembersInjector {
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
           case aClass: ScTypeDefinition =>
-            mkFinalAlg(aClass) ++ mkFunctorK(aClass) ++ mkWireProtocol(aClass)
+            mkFinalAlg(aClass) ++ mkFunctorK(aClass) ++ mkWireProtocolKryo(aClass) ++ mkWireProtocolAkka(aClass)
           case _ => Seq.empty
         }
       case _ => Seq.empty
@@ -31,7 +31,8 @@ class FunctorKInjector extends SyntheticMembersInjector {
 object FunctorKInjector {
   private[this] val autoFuncAnn    = "cats.tagless.autoFunctorK"
   private[this] val finalAlgAnn    = "cats.tagless.finalAlg"
-  private[this] val kryoEncoderAnn = "com.dispalt.tagless.kryo.kryoEncoder"
+  private[this] val kryoEncoderAnn = "com.dispalt.taglessKryo.kryoEncoder"
+  private[this] val akkaEncoderAnn = "com.dispalt.taglessAkka.akkaEncoder"
 
   private def isAutoFunctorK(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(autoFuncAnn) != null
@@ -42,6 +43,9 @@ object FunctorKInjector {
   private def isFinalAlg(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(finalAlgAnn) != null
 
+  private def isAkkaEncoder(source: ScTypeDefinition): Boolean =
+    source.findAnnotationNoAliases(akkaEncoderAnn) != null
+
   /** (tpNames, returnType) */
   private def typeParams(clazz: ScTypeDefinition) = {
     val effectParam = clazz.typeParameters.collectFirst {
@@ -51,12 +55,12 @@ object FunctorKInjector {
     effectParam.map { effP =>
       // Don't know how to compute
 
-      val tpName = clazz.typeParameters.filterNot(_ == effP) match {
+      val tpName = clazz.typeParameters.filterNot(_ eq effP) match {
         case Seq() => ""
         case x     => x.map(_.name).mkString("[", ",", "]")
       }
 
-      val tpText = clazz.typeParameters.filterNot(_ == effP) match {
+      val tpText = clazz.typeParameters.filterNot(_ eq effP) match {
         case Seq() => s"${clazz.qualifiedName}"
         case _ =>
           val tpes = clazz.typeParameters.map { tp =>
@@ -95,12 +99,25 @@ object FunctorKInjector {
     Seq.empty
   }
 
-  private def mkWireProtocol(clazz: ScTypeDefinition) = if (isKryoEncoder(clazz)) {
+  private def mkWireProtocolKryo(clazz: ScTypeDefinition) = if (isKryoEncoder(clazz)) {
 
     typeParams(clazz).toSeq.flatMap {
       case (tpName, tpText) =>
         Seq(
           s"implicit def taglessWireProtocol${clazz.name}${tpName}: _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
+        )
+    }
+
+  } else {
+    Seq.empty
+  }
+
+  private def mkWireProtocolAkka(clazz: ScTypeDefinition) = if (isAkkaEncoder(clazz)) {
+
+    typeParams(clazz).toSeq.flatMap {
+      case (tpName, tpText) =>
+        Seq(
+          s"implicit def taglessWireProtocol${clazz.name}${tpName}(implicit system: _root_.akka.actor.ActorSystem): _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
         )
     }
 

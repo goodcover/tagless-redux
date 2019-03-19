@@ -25,17 +25,19 @@ abstract class EncoderGeneratorMacro {
   def encoderBody(traitStats: Seq[Tree], theF: TypeName, encodeFn: Symbol, decodeFn: Symbol): Seq[Tree] = {
     traitStats.map {
       case q"def ${name: TermName}[..$tps](..${params: List[ValDef]}): ${Ident(someF)}[$out]" if someF == theF =>
-        val tupleTpeBase = TermName(s"Tuple${params.size}")
+        val tupleTpeBase    = TermName(s"Tuple${params.size}")
+        val tupleTpeBaseTpe = TypeName(s"Tuple${params.size}")
         q"""
         final def $name[..$tps](..$params): $wireP.Encoded[$out] = (
-          $encodeFn((${name.decodedName.toString}, $tupleTpeBase(..${params.map(_.name)}))),
+          $encodeFn[(String, $tupleTpeBaseTpe[..${params.map(_.tpt)}])].apply((${name.decodedName.toString}, $tupleTpeBase(..${params
+          .map(_.name)}))),
           $decodeFn[$out]
         )
         """
       case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF =>
         q"""
         final val ${name}: $wireP.Encoded[$out] = (
-          $encodeFn((${name.decodedName.toString}, ())),
+          $encodeFn[(String, Unit)].apply((${name.decodedName.toString}, ())),
           $decodeFn[$out]
         )"""
       case other =>
@@ -97,7 +99,13 @@ abstract class EncoderGeneratorMacro {
     cases :+ cq"""other => throw new IllegalArgumentException(s"Unknown type tag $$other")"""
   }
 
-  def apply[C <: CodecFactory: TypeTag](cf: C, base: ClassDef, companion: Option[ModuleDef]): Tree = {
+  def apply[C <: CodecFactory[Impl]: TypeTag, Impl[_]](
+    cf: C,
+    base: ClassDef,
+    companion: Option[ModuleDef],
+    imports: Tree,
+    additionalParams: Seq[Tree],
+  ): Tree = {
     val typeName               = base.name
     val traitStats             = base.impl.body
     val (theF, abstractParams) = (base.tparams.last.name, base.tparams.dropRight(1))
@@ -134,7 +142,7 @@ abstract class EncoderGeneratorMacro {
     """
 
     val companionStats: Seq[Tree] = Seq(q"""
-        implicit def $instanceName[..$abstractParams]: $wirePTpe[$unifiedBase]  =
+        implicit def $instanceName[..$abstractParams](implicit ..$additionalParams): $wirePTpe[$unifiedBase]  =
          new $wirePTpe[$unifiedBase] {
 
             final val encoder = new ${typeName}[..$abstractTypes, $wireP.Encoded] {
@@ -155,7 +163,7 @@ abstract class EncoderGeneratorMacro {
         q"object ${base.name.toTermName} { ..$companionStats }"
 
     }
-    val classCompanion = List(base, newCompanion)
+    val classCompanion = List(imports, base, newCompanion)
     val completeResult = Block(classCompanion, Literal(Constant(())))
     if (System.getProperty("tagless.macro.debug", "false") == "true") {
       println(showCode(completeResult))

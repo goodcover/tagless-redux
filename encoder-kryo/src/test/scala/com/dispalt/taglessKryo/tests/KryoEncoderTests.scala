@@ -1,4 +1,4 @@
-package com.dispalt.tagless.kryo.tests
+package com.dispalt.taglessKryo.tests
 
 import java.util.UUID
 
@@ -6,8 +6,9 @@ import cats.{~>, Applicative, Functor, Id}
 import cats.syntax.functor._
 import cats.syntax.applicative._
 import cats.tagless.FunctorK
-import com.dispalt.tagless.kryo.KryoCodec
-import com.dispalt.tagless.kryo.tests.algs.SafeAlg
+import com.dispalt.taglessKryo.KryoCodec
+import com.dispalt.taglessKryo.Default._
+import com.dispalt.taglessKryo.tests.algs.SafeAlg
 import com.dispalt.tagless.util.WireProtocol
 import cats.tagless.syntax.functorK._
 import com.dispalt.tagless.util.WireProtocol.Decoder
@@ -56,7 +57,7 @@ class KryoEncoderTests extends FlatSpec with Matchers {
     val result3 = returnPayload match {
       case Failure(exception) => fail(exception)
       case Success(value) =>
-        value.second(value.first.run[Id](mf)) shouldBe KryoCodec.encode[Int](output)
+        value.second(value.first.run[Id](mf)) shouldBe KryoCodec.encode[Int].apply(output)
     }
 
     println(result3)
