@@ -1,5 +1,7 @@
 package com.dispalt.taglessAkka
 
+import java.nio.ByteBuffer
+
 import akka.actor.ActorSystem
 import akka.serialization.{Serialization, SerializationExtension}
 
@@ -15,7 +17,40 @@ trait AkkaImpl[A] {
   def decode(a: Array[Byte]): Try[A]
 }
 
-object AkkaImpl {
+object AkkaImpl extends DefaultGenerator {
+
+  def instance[A](enc: A => Array[Byte])(dec: Array[Byte] => Try[A]): AkkaImpl[A] = new AkkaImpl[A] {
+    override def encode(a: A)           = enc(a)
+    override def decode(a: Array[Byte]) = dec(a)
+  }
+
+  private def anyValInstance[A](size: Int, enc: (ByteBuffer, A) => ByteBuffer)(dec: ByteBuffer => A): AkkaImpl[A] =
+    new AkkaImpl[A] {
+      override def encode(a: A) = {
+        val bb = ByteBuffer.allocate(size)
+        enc(bb, a).array()
+      }
+      override def decode(a: Array[Byte]) = {
+        Try(dec(ByteBuffer.wrap(a)))
+      }
+    }
+
+  implicit val akkaImplDouble: AkkaImpl[Double] = anyValInstance[Double](8, _.putDouble(_))(_.getDouble())
+  implicit val akkaImplFloat: AkkaImpl[Float]   = anyValInstance[Float](4, _.putFloat(_))(_.getFloat())
+  implicit val akkaImplLong: AkkaImpl[Long]     = anyValInstance[Long](8, _.putLong(_))(_.getLong())
+  implicit val akkaImplInt: AkkaImpl[Int]       = anyValInstance[Int](4, _.putInt(_))(_.getInt())
+  implicit val akkaImplShort: AkkaImpl[Short]   = anyValInstance[Short](2, _.putShort(_))(_.getShort())
+  implicit val akkaImplByte: AkkaImpl[Byte]     = anyValInstance[Byte](1, _.put(_))(_.get())
+  implicit val akkaImplUnit: AkkaImpl[Unit]     = anyValInstance[Unit](0, (b, _) => b)(_ => ())
+  implicit val akkaImplBoolean: AkkaImpl[Boolean] =
+    anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(
+      b => b.get() == 0x01.toByte
+    )
+  implicit val akkaImplChar: AkkaImpl[Char] = anyValInstance[Char](2, _.putChar(_))(_.getChar())
+
+}
+
+trait DefaultGenerator {
   private[this] var serialization: Option[Serialization] = None
   implicit def akkaImplGen[A](implicit system: ActorSystem, ct: ClassTag[A]): AkkaImpl[A] = {
     val ser = synchronized {
@@ -29,7 +64,9 @@ object AkkaImpl {
     val clazz = ser.serializerFor(ct.runtimeClass)
 
     new AkkaImpl[A] {
-      override def encode(a: A) = clazz.toBinary(a.asInstanceOf[AnyRef])
+      override def encode(a: A) = a match {
+        case anyRef: AnyRef => clazz.toBinary(anyRef)
+      }
 
       override def decode(a: Array[Byte]) = Try(clazz.fromBinary(a).asInstanceOf[A])
     }
