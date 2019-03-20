@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import cats.Id
 import cats.tagless.autoFunctorK
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, SafeAlg}
+import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg}
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 import scala.util.{Failure, Success}
@@ -13,6 +13,7 @@ class akkaEncoderTests extends FlatSpec with Matchers {
   behavior of "akkaEncoder"
 
   implicit val system: ActorSystem = ActorSystem()
+  import com.dispalt.tagless.TwoWaySimulator._
 
   it should "generate companion methods" in {
     val wp = WireProtocol[SafeAlg]
@@ -57,6 +58,20 @@ class akkaEncoderTests extends FlatSpec with Matchers {
   it should "handle case classes" in {
     roundTrip(Bar(1))
   }
+
+  it should "handle anyvals" in {
+    roundTrip(Baz(1))
+  }
+
+  it should "encdec" in {
+    val actions = new SafeAlg[Id] {
+      override def test1(i: Int) = i.toString
+    }
+
+    val fooServer = server(actions)
+    val fooClient = client[SafeAlg, Id](fooServer)
+    fooClient.test1(1).toEither shouldBe Right("1")
+  }
 }
 
 object akkaEncoderTests {
@@ -70,5 +85,7 @@ object akkaEncoderTests {
   object Hello
 
   case class Bar(i: Int)
+
+  case class Baz(i: Int) extends AnyVal
 
 }

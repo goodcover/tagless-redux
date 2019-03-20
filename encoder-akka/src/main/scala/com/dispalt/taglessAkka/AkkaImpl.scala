@@ -8,16 +8,23 @@ import akka.serialization.SerializationExtension
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.util.Try
+import scala.reflect.macros.blackbox.{Context => MacroContext}
 
 @implicitNotFound(
   "Could not find implicit AkkaImpl[${A}] Which usually means you do not have an implicit akka.actor.ActorSystem in scope."
 )
-trait AkkaImpl[A] {
+trait AkkaImpl[A] { self =>
   def encode(a: A): Array[Byte]
   def decode(a: Array[Byte]): Try[A]
+
+  def imap[B](enc: A => B)(dec: B => A): AkkaImpl[B] = new AkkaImpl[B] {
+    override def encode(a: B) = self.encode(dec(a))
+
+    override def decode(a: Array[Byte]) = self.decode(a).map(enc)
+  }
 }
 
-object AkkaImpl extends DefaultGenerator {
+object AkkaImpl extends AnyValGenerator {
 
   def instance[A](enc: A => Array[Byte])(dec: Array[Byte] => Try[A]): AkkaImpl[A] = new AkkaImpl[A] {
     override def encode(a: A)           = enc(a)
@@ -50,6 +57,10 @@ object AkkaImpl extends DefaultGenerator {
 
 }
 
+trait AnyValGenerator extends DefaultGenerator {
+  implicit def akkaImplMacroAnyVal[A <: AnyVal]: AkkaImpl[A] = macro AnyValGeneratorMacros.impl[A]
+}
+
 trait DefaultGenerator {
   implicit def akkaImplGen[A <: AnyRef](implicit system: ActorSystem, ct: ClassTag[A]): AkkaImpl[A] = {
     val ser   = SerializationExtension(system)
@@ -60,5 +71,31 @@ trait DefaultGenerator {
 
       override def decode(a: Array[Byte]) = Try(clazz.fromBinary(a).asInstanceOf[A])
     }
+  }
+}
+
+class AnyValGeneratorMacros(val c: MacroContext) {
+  import c.universe._
+
+  private def withAnyValParam[R](tpe: Type)(f: Symbol => R): Option[R] =
+    tpe.baseType(c.symbolOf[AnyVal]) match {
+      case NoType => None
+      case _ =>
+        primaryConstructor(tpe).map(_.paramLists.flatten).collect {
+          case param :: Nil => f(param)
+        }
+    }
+
+  private def primaryConstructor(t: Type) =
+    t.members.collectFirst {
+      case m: MethodSymbol if m.isPrimaryConstructor => m.typeSignature.asSeenFrom(t, t.typeSymbol)
+    }
+
+  def impl[T <: AnyVal](implicit t: WeakTypeTag[T]): Expr[AkkaImpl[T]] = {
+    c.Expr[AkkaImpl[T]](withAnyValParam(t.tpe) { param =>
+      q"""
+        implicitly[_root_.com.dispalt.taglessAkka.AkkaImpl[${param.typeSignature}]].imap(new ${t.tpe}(_))((v: ${t.tpe}) => v.${param.name.toTermName})
+      """
+    }.getOrElse(c.abort(c.enclosingPosition, s"Could find ${t.tpe}")))
   }
 }

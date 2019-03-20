@@ -2,19 +2,15 @@ package com.dispalt.taglessKryo.tests
 
 import java.util.UUID
 
-import cats.{~>, Applicative, Functor, Id}
-import cats.syntax.functor._
-import cats.syntax.applicative._
-import cats.tagless.FunctorK
+import com.dispalt.tagless.TwoWaySimulator._
+import cats.{Id}
 import com.dispalt.taglessKryo.KryoCodec
 import com.dispalt.taglessKryo.Default._
 import com.dispalt.taglessKryo.tests.algs.SafeAlg
 import com.dispalt.tagless.util.WireProtocol
-import cats.tagless.syntax.functorK._
-import com.dispalt.tagless.util.WireProtocol.Decoder
 import org.scalatest._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class KryoEncoderTests extends FlatSpec with Matchers {
 
@@ -63,36 +59,6 @@ class KryoEncoderTests extends FlatSpec with Matchers {
     println(result3)
 
   }
-
-  def server[M[_[_]], F[_]: Applicative](
-    actions: M[F]
-  )(
-    implicit M: WireProtocol[M]
-  ): Array[Byte] => F[Try[Array[Byte]]] = { in =>
-    M.decoder.apply(in) match {
-      case Success(p) =>
-        val r: F[p.A] = p.first.run(actions)
-        r.map(a => Success(p.second.apply(a)))
-      case Failure(cause) =>
-        (Failure(cause): Try[Array[Byte]]).pure[F]
-    }
-
-  }
-
-  type DecodingResultT[F[_], A] = F[Try[A]]
-
-  def client[M[_[_]], F[_]: Functor](
-    server: Array[Byte] => F[Try[Array[Byte]]]
-  )(
-    implicit M: WireProtocol[M],
-    MI: FunctorK[M]
-  ): M[DecodingResultT[F, ?]] =
-    M.encoder
-      .mapK[DecodingResultT[F, ?]](new (WireProtocol.Encoded ~> DecodingResultT[F, ?]) {
-        override def apply[A](fa: (Array[Byte], Decoder[A])): F[Try[A]] = {
-          server(fa._1).map(_.flatMap(fa._2.apply))
-        }
-      })
 
   it should "encdec" in {
     val uuid = UUID.randomUUID.toString

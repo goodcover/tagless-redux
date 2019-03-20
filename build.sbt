@@ -67,7 +67,7 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(simulacrumSettings(vAll))
   .settings(addCompilerPlugins(vAll, "kind-projector"))
   .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
-  .dependsOn(`encoder-macros`, macros % "test->test")
+  .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `encoder-akka` = (project in file("encoder-akka"))
   .settings(
@@ -79,7 +79,7 @@ lazy val `encoder-akka` = (project in file("encoder-akka"))
   .settings(simulacrumSettings(vAll))
   .settings(addCompilerPlugins(vAll, "kind-projector"))
   .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
-  .dependsOn(`encoder-macros`, macros % "test->test")
+  .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .enablePlugins(SbtIdeaPlugin)
