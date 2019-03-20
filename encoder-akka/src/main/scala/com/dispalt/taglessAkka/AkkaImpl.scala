@@ -3,7 +3,7 @@ package com.dispalt.taglessAkka
 import java.nio.ByteBuffer
 
 import akka.actor.ActorSystem
-import akka.serialization.{Serialization, SerializationExtension}
+import akka.serialization.SerializationExtension
 
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
@@ -51,22 +51,12 @@ object AkkaImpl extends DefaultGenerator {
 }
 
 trait DefaultGenerator {
-  private[this] var serialization: Option[Serialization] = None
-  implicit def akkaImplGen[A](implicit system: ActorSystem, ct: ClassTag[A]): AkkaImpl[A] = {
-    val ser = synchronized {
-      if (serialization.isEmpty) {
-        val matSerializer = SerializationExtension(system)
-        serialization = Some(matSerializer)
-        matSerializer
-      } else serialization.get
-    }
-
+  implicit def akkaImplGen[A <: AnyRef](implicit system: ActorSystem, ct: ClassTag[A]): AkkaImpl[A] = {
+    val ser   = SerializationExtension(system)
     val clazz = ser.serializerFor(ct.runtimeClass)
 
     new AkkaImpl[A] {
-      override def encode(a: A) = a match {
-        case anyRef: AnyRef => clazz.toBinary(anyRef)
-      }
+      override def encode(a: A) = clazz.toBinary(a)
 
       override def decode(a: Array[Byte]) = Try(clazz.fromBinary(a).asInstanceOf[A])
     }
