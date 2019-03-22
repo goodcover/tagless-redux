@@ -36,8 +36,7 @@ object FinalAlgInstanceGenerator {
 
       case Nil => c.abort(c.enclosingPosition, "Expecting a trait")
     }
-//    println(showCode(result))
-//    result
+
     if (System.getProperty("tagless.macro.debug", "false") == "true") {
       println(showCode(Block(result, Literal(Constant(())))))
     }

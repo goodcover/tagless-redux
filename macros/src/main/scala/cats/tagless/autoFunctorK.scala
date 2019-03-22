@@ -8,7 +8,7 @@ import scala.language.experimental.macros
   * auto generates an instance of autoFunctorK
   */
 @compileTimeOnly("Cannot expand @autoFunctorK")
-class autoFunctorK(autoDerivation: Boolean = true, finalAlg: Boolean = false) extends StaticAnnotation {
+class autoFunctorK(autoDerivation: Boolean = true) extends StaticAnnotation {
 
   def macroTransform(annottees: Any*): Any = macro FunctorKInstanceGenerator.functorKImpl
 }
@@ -19,18 +19,18 @@ object FunctorKInstanceGenerator {
     import c.universe._
 
     // Get value of autoDerivation
-    val (autoDerivation, finalAlg) = c.prefix.tree match {
-      case Apply(_, List(Literal(Constant(autoDerive: Boolean)), Literal(Constant(finalAlg: Boolean)))) =>
-        (autoDerive, finalAlg)
-      case q"new $_(autoDerivation = ${autoDerive: Boolean}, finalAlg = ${finalAlg: Boolean})" => (autoDerive, finalAlg)
-      case _                                                                                   => (true, false)
+    val autoDerivation = c.prefix.tree match {
+      case Apply(_, List(Literal(Constant(autoDerive: Boolean)))) =>
+        autoDerive
+      case q"new $_(autoDerivation = ${autoDerive: Boolean})" => autoDerive
+      case _                                                  => true
     }
 
     val result = annottees.map(_.tree).toList match {
       case classDef :: tail =>
         val utils = new Utils[c.type](c).processAnnotation(classDef, autoDerivation)
 
-        val instanceDef = utils.newDef ::: (if (finalAlg) utils.applyInstanceDef else Nil)
+        val instanceDef = utils.newDef
 
         tail match {
           // if there is a preexisting companion, include it with the updated classDef

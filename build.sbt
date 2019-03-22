@@ -6,7 +6,7 @@ ThisBuild / organization := "com.dispalt"
 val vAll = Versions(versions, libraries, scalacPlugins)
 val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
-val taglessV = "0.2.0"
+val taglessV = "0.3.0"
 val chillV   = "0.9.1"
 val akkaV    = "2.5.21"
 
@@ -22,8 +22,8 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies += "org.typelevel" %% "cats-tagless-core" % taglessV,
-    macroSettings,
+    libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV,
+      macroSettings,
     resourceGenerators in Compile += Def.task {
       val rootFolder = (resourceManaged in Compile).value / "META-INF"
       rootFolder.mkdirs()

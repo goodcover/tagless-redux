@@ -35,15 +35,15 @@ object autoFunctorKTests {
     def b(i: Int): Int
   }
 
-//  @autoFunctorK @finalAlg
-//  trait AlgWithTypeMember[F[_]] {
-//    type T
-//    def a(i: Int): F[T]
-//  }
-//
-//  object AlgWithTypeMember {
-//    type Aux[F[_], T0] = AlgWithTypeMember[F] { type T = T0 }
-//  }
+  @autoFunctorK @finalAlg
+  trait AlgWithTypeMember[F[_]] {
+    type T
+    def a(i: Int): F[T]
+  }
+
+  object AlgWithTypeMember {
+    type Aux[F[_], T0] = AlgWithTypeMember[F] { type T = T0 }
+  }
 
   @autoFunctorK @finalAlg
   trait AlgWithExtraTP[F[_], T] {
@@ -86,15 +86,15 @@ object autoFunctorKTests {
     def a[T: Show](t: Int): F[String]
   }
 
-//  @autoFunctorK @finalAlg
-//  trait AlgWithAbstractTypeClass[F[_]] {
-//    type TC[T]
-//    def a[T: TC](t: T): F[String]
-//  }
-//
-//  object AlgWithAbstractTypeClass {
-//    type Aux[F[_], TC0[_]] = AlgWithAbstractTypeClass[F] { type TC[T] = TC0[T] }
-//  }
+  @autoFunctorK @finalAlg
+  trait AlgWithAbstractTypeClass[F[_]] {
+    type TC[T]
+    def a[T: TC](t: T): F[String]
+  }
+
+  object AlgWithAbstractTypeClass {
+    type Aux[F[_], TC0[_]] = AlgWithAbstractTypeClass[F] { type TC[T] = TC0[T] }
+  }
 
   @autoFunctorK @finalAlg
   trait AlgWithCurryMethod[F[_]] {

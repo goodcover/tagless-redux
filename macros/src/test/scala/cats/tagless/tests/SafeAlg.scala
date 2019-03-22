@@ -1,9 +1,10 @@
 package cats.tagless.tests
 
-import cats.tagless.autoFunctorK
+import cats.tagless.{autoFunctorK, finalAlg}
 
 //
-@autoFunctorK(autoDerivation = false, finalAlg = true)
+@finalAlg
+@autoFunctorK(autoDerivation = false)
 trait SafeAlg[F[_]] {
   def parseInt(i: String): F[Int]
   def divide(dividend: Float, divisor: Float): F[Float]

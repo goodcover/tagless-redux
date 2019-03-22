@@ -136,9 +136,7 @@ class Utils[C <: blackbox.Context](val c: C) { self =>
         companionMapKDef,
         q"""
         implicit def ${TermName("functorKFor" + name.decodedName.toString)}[..$extraTParams]: _root_.cats.tagless.FunctorK[$typeLambdaVaryingHigherKindedEffect] =
-          new _root_.cats.tagless.FunctorK[$typeLambdaVaryingHigherKindedEffect] {
-            $instanceMapKDef
-          }
+          _root_.cats.tagless.Derive.functorK[$typeLambdaVaryingHigherKindedEffect]
       """
       )
     }
@@ -259,11 +257,11 @@ class Utils[C <: blackbox.Context](val c: C) { self =>
       """)
     }
 
-    lazy val newDef: List[Tree] = instanceDef ++ {
+    lazy val newDef: List[Tree] = instanceDef /*++ {
       if (autoDerivation)
         List(autoDerivationDef)
       else Nil
-    } ++ instanceDefFullyRefined
+    } ++ instanceDefFullyRefined*/
 
     val applyInstanceDef = List(
       q"def apply[..${tparams}](implicit inst: $name[..${tArgs()}]): $name[..${tArgs()}] = inst"
