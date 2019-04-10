@@ -95,7 +95,7 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),
   resolvers += Resolver.bintrayRepo("scalameta", "maven"),
   libraryDependencies +=
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 )
 
 lazy val buildSettings = sharedBuildSettings(gh, vAll) ++ Seq(crossScalaVersions := Seq(scalaVersion.value)) ++ scalacAllSettings
