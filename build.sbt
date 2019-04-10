@@ -8,7 +8,7 @@ val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = 
 
 val taglessV = "0.5"
 val chillV   = "0.9.1"
-val akkaV    = "2.5.21"
+val akkaV    = "2.5.22"
 
 ideaExternalPlugins in ThisBuild := Seq.empty
 ideaPluginName in ThisBuild := "tagless-redux-ijext"
