@@ -69,7 +69,7 @@ trait DefaultGenerator {
     new AkkaImpl[A] {
       override def encode(a: A) = clazz.toBinary(a)
 
-      override def decode(a: Array[Byte]) = Try(clazz.fromBinary(a).asInstanceOf[A])
+      override def decode(a: Array[Byte]) = Try(clazz.fromBinary(a, Some(ct.runtimeClass)).asInstanceOf[A])
     }
   }
 }
