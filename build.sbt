@@ -7,8 +7,8 @@ val vAll = Versions(versions, libraries, scalacPlugins)
 val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
 val taglessV = "0.9"
-val chillV   = "0.9.1"
-val akkaV    = "2.5.21"
+val akkaV    = "2.5.25"
+val chillV   = "0.9.3"
 
 ideaExternalPlugins in ThisBuild := Seq.empty
 ideaPluginName in ThisBuild := "tagless-redux-ijext"
