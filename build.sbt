@@ -6,7 +6,7 @@ ThisBuild / organization := "com.dispalt"
 val vAll = Versions(versions, libraries, scalacPlugins)
 val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
-val taglessV = "0.5"
+val taglessV = "0.9"
 val akkaV    = "2.5.25"
 val chillV   = "0.9.3"
 
