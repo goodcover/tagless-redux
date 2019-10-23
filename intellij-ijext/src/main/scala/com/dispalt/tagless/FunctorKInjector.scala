@@ -1,14 +1,7 @@
 package com.dispalt.tagless
 
-import com.intellij.psi.PsiAnnotation
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 
 class FunctorKInjector extends SyntheticMembersInjector {
   import FunctorKInjector._

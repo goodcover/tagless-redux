@@ -10,9 +10,8 @@ val taglessV = "0.9"
 val akkaV    = "2.5.25"
 val chillV   = "0.9.3"
 
-ideaExternalPlugins in ThisBuild := Seq.empty
-ideaPluginName in ThisBuild := "tagless-redux-ijext"
-ideaBuild in ThisBuild := "183.4886.37"
+ThisBuild / intellijPluginName := "tagless-redux-ijext"
+ThisBuild / intellijBuild := "192.6817.14"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -86,9 +85,9 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .settings(commonSettings ++ publishSettings)
   .settings(
     name := "tagless-redux-ijext",
-    ideaPluginName := name.value,
-    ideaBuild := "183.4886.37",
-    ideaExternalPlugins += IdeaPlugin.Id("Scala", "org.intellij.scala", None)
+    intellijPluginName := name.value,
+    intellijExternalPlugins += "org.intellij.scala".toPlugin,
+    intellijInternalPlugins += "java"
   )
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
