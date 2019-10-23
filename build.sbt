@@ -82,7 +82,38 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     name := "tagless-redux-ijext",
     intellijPluginName := name.value,
     intellijExternalPlugins += "org.intellij.scala".toPlugin,
-    intellijInternalPlugins += "java"
+    intellijInternalPlugins := Seq("properties", "java", "java-i18n"),
+    packageMethod := PackagingMethod.Standalone(),
+    patchPluginXml := pluginXmlOptions { xml =>
+      xml.version    = version.value
+      xml.sinceBuild = (intellijBuild in ThisBuild).value
+      xml.untilBuild = "193.*"
+    },
+    resourceGenerators in Compile += Def.task {
+      val rootFolder = (resourceManaged in Compile).value / "META-INF"
+      rootFolder.mkdirs()
+      val fileOut = rootFolder / "intellij-compat.xml"
+
+      IO.write(fileOut, s"""
+          |<!DOCTYPE intellij-compat PUBLIC "Plugin/DTD"
+          |        "https://raw.githubusercontent.com/JetBrains/intellij-scala/idea183.x/scala/scala-impl/src/org/jetbrains/plugins/scala/components/libextensions/intellij-compat.dtd">
+          |<intellij-compat>
+          |    <name>Tagless Intellij Support</name>
+          |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
+          |    <version>${version.value}</version>
+          |    <vendor>tagless-redux</vendor>
+          |    <ideaVersion since-build="2018.1.0" until-build="2019.4.0">
+          |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
+          |                   implementation="com.dispalt.tagless.FunctorKInjector">
+          |            <name>Tagless macro support</name>
+          |            <description>FunctorK injector</description>
+          |        </extension>
+          |    </ideaVersion>
+          |</intellij-compat>
+          """.stripMargin)
+
+      Seq(fileOut)
+    }
   )
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
@@ -106,3 +137,5 @@ lazy val commonSettings = sharedCommonSettings ++ Seq(
   addCompilerPlugins(libs, "kind-projector")
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess
+
+lazy val ideaRunner = createRunnerProject(`intellij-ijext`, "intellij-ijext-runner")
