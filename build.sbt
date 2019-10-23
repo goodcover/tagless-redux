@@ -1,10 +1,11 @@
-import org.typelevel.Dependencies._
-
-ThisBuild / scalaVersion := "2.12.8"
+ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / organization := "com.dispalt"
 
-val vAll = Versions(versions, libraries, scalacPlugins)
-val gh   = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
+val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
+
+val libs = org.typelevel.libraries
+  .add("cats", "1.5.0")
+  .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
 val taglessV = "0.9"
 val akkaV    = "2.5.25"
@@ -22,7 +23,7 @@ lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
     libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV,
-      macroSettings,
+    macroSettings,
     resourceGenerators in Compile += Def.task {
       val rootFolder = (resourceManaged in Compile).value / "META-INF"
       rootFolder.mkdirs()
@@ -32,52 +33,46 @@ lazy val macros = (project in file("macros"))
          |}""".stripMargin)
 
       Seq(rootFolder / "intellij-compat.json")
-    },
+    }
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(addLibs(vAll, "cats-core"))
-  .settings(addCompilerPlugins(vAll, "kind-projector"))
-  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .settings(libs.dependency("cats-core"))
+  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"))
+  .settings(scalaMacroDependencies(libs))
 
 lazy val tests = (project in file("tests"))
   .settings(commonSettings ++ buildSettings ++ publishSettings)
   .settings(name := "tagless-redux-tests", noPublishSettings, macroSettings)
-  .settings(addCompilerPlugins(vAll, "kind-projector"))
   .dependsOn(macros % "compile->compile;test->test")
 
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
     libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV),
-    macroSettings,
+    macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(addLibs(vAll, "cats-core"))
-  .settings(addCompilerPlugins(vAll, "kind-projector"))
-  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .settings(scalaMacroDependencies(libs))
+  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"))
 
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
     libraryDependencies ++= Seq("com.twitter" %% "chill-bijection" % chillV),
-    macroSettings,
+    macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(simulacrumSettings(vAll))
-  .settings(addCompilerPlugins(vAll, "kind-projector"))
-  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `encoder-akka` = (project in file("encoder-akka"))
   .settings(
     name := "tagless-redux-encoder-akka",
     libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % akkaV),
-    macroSettings,
+    macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(simulacrumSettings(vAll))
-  .settings(addCompilerPlugins(vAll, "kind-projector"))
-  .settings(addTestLibs(vAll, "scalatest", "cats-free", "cats-effect"))
+  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `intellij-ijext` = (project in file("intellij-ijext"))
@@ -97,17 +92,17 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
-lazy val buildSettings = sharedBuildSettings(gh, vAll) ++ Seq(crossScalaVersions := Seq(scalaVersion.value)) ++ scalacAllSettings
+lazy val buildSettings = sharedBuildSettings(gh, libs) ++ Seq(crossScalaVersions := Seq(scalaVersion.value)) ++ scalacAllSettings
 
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
-  scalaVersion := vAll.vers("scalac_2.12"),
+  scalaVersion := libs.vers("scalac_2.12"),
   crossScalaVersions := Seq(scalaVersion.value),
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   )
 ) ++
   unidocCommonSettings ++
-  addCompilerPlugins(vAll, "kind-projector")
+  addCompilerPlugins(libs, "kind-projector")
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess

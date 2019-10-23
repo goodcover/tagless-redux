@@ -2,17 +2,18 @@ package com.dispalt.taglessKryo.tests
 
 import java.util.UUID
 
+import cats.Id
 import com.dispalt.tagless.TwoWaySimulator._
-import cats.{Id}
-import com.dispalt.taglessKryo.KryoCodec
-import com.dispalt.taglessKryo.Default._
-import com.dispalt.taglessKryo.tests.algs.SafeAlg
 import com.dispalt.tagless.util.WireProtocol
-import org.scalatest._
+import com.dispalt.taglessKryo.Default._
+import com.dispalt.taglessKryo.KryoCodec
+import com.dispalt.taglessKryo.tests.algs.SafeAlg
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.util.{Failure, Success}
 
-class KryoEncoderTests extends FlatSpec with Matchers {
+class KryoEncoderTests extends AnyFlatSpec with Matchers {
 
   behavior of "kryoEncoder"
 

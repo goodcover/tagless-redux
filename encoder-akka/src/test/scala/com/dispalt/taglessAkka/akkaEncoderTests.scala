@@ -5,11 +5,12 @@ import cats.Id
 import cats.tagless.autoFunctorK
 import com.dispalt.tagless.util.WireProtocol
 import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg}
-import org.scalatest.{Assertion, FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.{matchers, Assertion}
 
 import scala.util.{Failure, Success}
 
-class akkaEncoderTests extends FlatSpec with Matchers {
+class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   behavior of "akkaEncoder"
 
   implicit val system: ActorSystem = ActorSystem()
