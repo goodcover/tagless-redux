@@ -7,7 +7,7 @@ val libs = org.typelevel.libraries
   .add("cats", "1.5.0")
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
-val taglessV = "0.9"
+val taglessV = "0.10"
 val akkaV    = "2.5.25"
 val chillV   = "0.9.3"
 
