@@ -4,7 +4,7 @@ ThisBuild / organization := "com.dispalt"
 val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
 val libs = org.typelevel.libraries
-  .add("cats", "1.5.0")
+  .add("cats", "1.6.1")
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
 val taglessV = "0.9"
