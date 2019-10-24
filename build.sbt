@@ -8,7 +8,7 @@ val libs = org.typelevel.libraries
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
 val taglessV = "0.9"
-val akkaV    = "2.5.25"
+val akkaV    = "2.5.26"
 val chillV   = "0.9.3"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
