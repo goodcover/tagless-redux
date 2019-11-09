@@ -76,7 +76,7 @@ abstract class EncoderGeneratorMacro {
         cq"""$nameLit =>
             val args = $argName.asInstanceOf[$tupleTpeBase[..${typeInTypeOut.map(_._2)}]]
             val invocation = new $wireP.Invocation[$unifiedBase, $out] {
-              final override def run[F[_]](mf: $unifiedBase[F]): F[$out] = mf.$name(..$arglist)
+              final override def run[F0[_]](mf: $unifiedBase[F0]): F0[$out] = mf.$name(..$arglist)
               final override def toString: String = {
                 val name = $nameLit
                 s"$$name$$args"
@@ -88,7 +88,7 @@ abstract class EncoderGeneratorMacro {
         val nameLit = name.decodedName.toString
         cq"""$nameLit =>
                   val invocation = new $wireP.Invocation[$unifiedBase, $out] {
-                    final override def run[F[_]](mf: $unifiedBase[F]): F[$out] = mf.$name
+                    final override def run[F0[_]](mf: $unifiedBase[F0]): F0[$out] = mf.$name
                     final override def toString: String = $nameLit
                   }
                   $pkg.PairE(invocation, $encodeFn[$out])
@@ -104,7 +104,7 @@ abstract class EncoderGeneratorMacro {
     base: ClassDef,
     companion: Option[ModuleDef],
     imports: Tree,
-    additionalParams: Seq[Tree],
+    additionalParams: Seq[Tree]
   ): Tree = {
     val typeName               = base.name
     val traitStats             = base.impl.body
