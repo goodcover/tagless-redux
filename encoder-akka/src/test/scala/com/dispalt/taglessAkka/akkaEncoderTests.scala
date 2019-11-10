@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import cats.Id
 import cats.tagless.autoFunctorK
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg}
+import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg, SafeAlg2}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.{matchers, Assertion}
 
@@ -73,6 +73,18 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
     val fooClient = client[SafeAlg, Id](fooServer)
     fooClient.test1(1).toEither shouldBe Right("1")
   }
+
+  it should "client/server with extra type param" in {
+    val actions = new SafeAlg2[Boolean, Id] {
+      override def test2(s: String): Id[(String, Boolean)] = {
+        (s, true)
+      }
+    }
+
+    val fooServer = server(actions)
+    val fooClient = client[SafeAlg2[Boolean, *[_]], Id](fooServer)
+    fooClient.test2("Fooo").toEither shouldBe Right(("Fooo", true))
+  }
 }
 
 object akkaEncoderTests {
@@ -88,5 +100,14 @@ object akkaEncoderTests {
   case class Bar(i: Int)
 
   case class Baz(i: Int) extends AnyVal
+
+  //
+  @akkaEncoder
+  @autoFunctorK
+  trait SafeAlg2[T, E[_]] {
+    def test2(s: String): E[(String, T)]
+  }
+
+  object SafeAlg2 {}
 
 }

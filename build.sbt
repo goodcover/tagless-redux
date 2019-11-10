@@ -7,8 +7,8 @@ val libs = org.typelevel.libraries
   .add("cats", "1.5.0")
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
-val taglessV = "0.9"
-val akkaV    = "2.5.26"
+val taglessV = "0.10"
+val akkaV    = "2.5.25"
 val chillV   = "0.9.3"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
@@ -98,6 +98,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
           |<!DOCTYPE intellij-compat PUBLIC "Plugin/DTD"
           |        "https://raw.githubusercontent.com/JetBrains/intellij-scala/idea183.x/scala/scala-impl/src/org/jetbrains/plugins/scala/components/libextensions/intellij-compat.dtd">
           |<intellij-compat>
+          |    <id>dispalt.taglessRedux</id>
           |    <name>Tagless Intellij Support</name>
           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
           |    <version>${version.value}</version>
