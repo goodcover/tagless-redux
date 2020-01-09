@@ -1,13 +1,10 @@
 package cats.tagless
 
 import scala.reflect.macros.{blackbox}
-import scala.collection.immutable.Seq
 import cats.implicits._
 
 class Utils[C <: blackbox.Context](val c: C) { self =>
   import c.universe._
-
-  private[this] def failWithMessage(message: String): Nothing = c.abort(c.enclosingPosition, message)
 
   private[this] case class Member(
     name: TermName,
@@ -61,7 +58,7 @@ class Utils[C <: blackbox.Context](val c: C) { self =>
       .collect {
         case sym => Member.fromSymbol(tpe)(sym)
       }
-      .to[Seq]
+      .toSeq
 
     new U2(
       name,

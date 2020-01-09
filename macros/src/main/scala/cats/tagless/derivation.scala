@@ -1,7 +1,6 @@
 package cats.tagless
 
 import scala.reflect.macros.blackbox
-import scala.language.experimental.macros
 
 object derivation {
 

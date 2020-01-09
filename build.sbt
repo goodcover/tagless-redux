@@ -4,12 +4,12 @@ ThisBuild / organization := "com.dispalt"
 val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
 
 val libs = org.typelevel.libraries
-  .add("cats", "1.5.0")
+  .add("cats", "2.0.0")
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
 val taglessV = "0.10"
-val akkaV    = "2.5.25"
-val chillV   = "0.9.3"
+val akkaV    = "2.6.1"
+val chillV   = "0.9.4"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 ThisBuild / intellijBuild := "192.6817.14"
@@ -117,19 +117,30 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     }
   )
 
+  lazy val paradisePlugin = Def.setting {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, v)) if v <= 12 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch))
+      case _ =>
+        // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
+        // https://github.com/scala/scala/pull/6606
+        Nil
+    }
+  }
+
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),
   resolvers += Resolver.bintrayRepo("scalameta", "maven"),
-  libraryDependencies +=
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+  libraryDependencies ++= paradisePlugin.value,
 )
 
-lazy val buildSettings = sharedBuildSettings(gh, libs) ++ Seq(crossScalaVersions := Seq(scalaVersion.value)) ++ scalacAllSettings
+lazy val buildSettings = sharedBuildSettings(gh, libs) ++ Seq(
+  crossScalaVersions := Seq(scalaVersion.value, libs.vers("scalac_2.13")),
+) ++ scalacAllSettings
 
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
   scalaVersion := libs.vers("scalac_2.12"),
-  crossScalaVersions := Seq(scalaVersion.value),
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   )
