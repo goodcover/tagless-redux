@@ -9,7 +9,7 @@ val libs = org.typelevel.libraries
 
 val taglessV = "0.10"
 val akkaV    = "2.6.1"
-val chillV   = "0.9.4"
+val chillV   = "0.9.5"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 ThisBuild / intellijBuild := "192.6817.14"

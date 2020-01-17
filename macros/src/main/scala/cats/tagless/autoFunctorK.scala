@@ -2,7 +2,6 @@ package cats.tagless
 
 import scala.annotation.{compileTimeOnly, StaticAnnotation}
 import scala.reflect.macros.blackbox
-import scala.language.experimental.macros
 
 /**
   * auto generates an instance of autoFunctorK
