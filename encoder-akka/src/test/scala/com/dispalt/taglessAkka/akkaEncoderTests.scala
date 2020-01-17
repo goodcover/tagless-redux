@@ -9,11 +9,16 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.{matchers, Assertion}
 
 import scala.util.{Failure, Success}
+import com.typesafe.config.ConfigFactory
 
 class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   behavior of "akkaEncoder"
 
-  implicit val system: ActorSystem = ActorSystem()
+  val cfg = ConfigFactory.parseString("""
+  akka.actor.allow-java-serialization=true
+  """).withFallback(ConfigFactory.load())
+
+  implicit val system: ActorSystem = ActorSystem(this.suiteName, cfg)
   import com.dispalt.tagless.TwoWaySimulator._
 
   it should "generate companion methods" in {

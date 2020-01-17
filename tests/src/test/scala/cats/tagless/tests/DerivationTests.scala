@@ -1,6 +1,6 @@
 package cats.tagless.tests
 
-import cats.tagless.{derivation, FunctorK}
+import cats.tagless.{Derive, FunctorK}
 //import cats.tagless.FunctorK
 
 trait Fooo[F[_]] {
@@ -18,8 +18,13 @@ class DerivationTests extends CatsTaglessTestSuite {
 
   test("derivation") {
 
-    implicit def fk2[T]: FunctorK[Foo2[T, ?[_]]] = derivation.deriveAutoFunctorK[Foo2[T, ?[_]]]
-    implicit def fk: FunctorK[Fooo]              = derivation.deriveAutoFunctorK[Fooo]
+    implicit def fk2[T]: FunctorK[Foo2[T, ?[_]]] = Derive.functorK[Foo2[T, ?[_]]]
+    implicit def fk: FunctorK[Fooo]              = Derive.functorK[Fooo]
+
+    locally {
+      fk
+      fk2
+    }
 
   }
 }
