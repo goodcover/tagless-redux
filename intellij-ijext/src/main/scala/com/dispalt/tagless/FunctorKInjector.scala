@@ -13,7 +13,11 @@ class FunctorKInjector extends SyntheticMembersInjector {
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
           case aClass: ScTypeDefinition =>
-            mkFinalAlg(aClass) ++ mkFunctorK(aClass) ++ mkWireProtocolKryo(aClass) ++ mkWireProtocolAkka(aClass)
+            mkFinalAlg(aClass) ++
+              mkFunctorK(aClass) ++
+              mkWireProtocolKryo(aClass) ++
+              mkWireProtocolAkka(aClass) ++
+              mkInstrument(aClass)
           case _ => Seq.empty
         }
       case _ => Seq.empty
@@ -23,12 +27,16 @@ class FunctorKInjector extends SyntheticMembersInjector {
 
 object FunctorKInjector {
   private[this] val autoFuncAnn    = "cats.tagless.autoFunctorK"
+  private[this] val instrumentAnn  = "cats.tagless.autoInstrument"
   private[this] val finalAlgAnn    = "cats.tagless.finalAlg"
   private[this] val kryoEncoderAnn = "com.dispalt.taglessKryo.kryoEncoder"
   private[this] val akkaEncoderAnn = "com.dispalt.taglessAkka.akkaEncoder"
 
   private def isAutoFunctorK(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(autoFuncAnn) != null
+
+  private def isInstrument(source: ScTypeDefinition): Boolean =
+    source.findAnnotationNoAliases(instrumentAnn) != null
 
   private def isKryoEncoder(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(kryoEncoderAnn) != null
@@ -75,6 +83,19 @@ object FunctorKInjector {
     typeParams(clazz).toSeq.flatMap {
       case (tpName, tpText) =>
         Seq(s"implicit def functorKFor${clazz.name}${tpName}: _root_.cats.tagless.FunctorK[${tpText}] = ???")
+    }
+
+  } else {
+    Seq.empty
+  }
+
+  private def mkInstrument(clazz: ScTypeDefinition): Seq[String] = if (isInstrument(clazz)) {
+
+    typeParams(clazz).toSeq.flatMap {
+      case (tpName, tpText) =>
+        Seq(
+          s"implicit def instrumentFor${clazz.name}${tpName}: _root_.cats.tagless.diagnosis.Instrument[${tpText}] = ???"
+        )
     }
 
   } else {
