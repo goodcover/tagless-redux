@@ -24,6 +24,7 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   it should "generate companion methods" in {
     val wp = WireProtocol[SafeAlg]
 
+    //
     val mf = new SafeAlg[Id] {
       override def test1(i: Int) = {
         println(s"$i")
@@ -59,6 +60,13 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
     roundTrip(254.toChar)
     roundTrip(24.toChar)
     roundTrip(())
+  }
+
+  it should "anyvals in tuple2" in {
+
+    for { i <- 0 to 1000 } {
+      roundTrip(("foo", true))
+    }
   }
 
   it should "handle case classes" in {

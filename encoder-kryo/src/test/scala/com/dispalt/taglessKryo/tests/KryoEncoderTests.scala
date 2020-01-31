@@ -6,8 +6,9 @@ import cats.Id
 import com.dispalt.tagless.TwoWaySimulator._
 import com.dispalt.tagless.util.WireProtocol
 import com.dispalt.taglessKryo.Default._
-import com.dispalt.taglessKryo.KryoCodec
+import com.dispalt.taglessKryo.{KryoCodec, KryoImpl}
 import com.dispalt.taglessKryo.tests.algs.SafeAlg
+import org.scalatest.Assertion
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -58,7 +59,6 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
     }
 
     println(result3)
-
   }
 
   it should "encdec" in {
@@ -76,5 +76,17 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
     fooClient.test(1, "foo").toEither shouldBe Right(1)
     fooClient.test2(12).toEither shouldBe Right(12)
     fooClient.id.toEither shouldBe Right(uuid)
+  }
+
+  def roundTrip[A: KryoImpl](a: A): Assertion = {
+    val ab = KryoCodec.encode[A].apply(a)
+    val d  = KryoCodec.decode[A].apply(ab)
+    d.get shouldBe a
+  }
+
+  it should "handle high volume" in {
+    for { i <- 0 to 20000 } {
+      roundTrip(true)
+    }
   }
 }

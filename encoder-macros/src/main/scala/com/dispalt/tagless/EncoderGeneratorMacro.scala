@@ -29,7 +29,7 @@ abstract class EncoderGeneratorMacro {
         val tupleTpeBaseTpe = TypeName(s"Tuple${params.size}")
         q"""
         final def $name[..$tps](..$params): $wireP.Encoded[$out] = (
-          $encodeFn[(String, $tupleTpeBaseTpe[..${params.map(_.tpt)}])].apply((${name.decodedName.toString}, $tupleTpeBase(..${params
+          $encodeFn[$pkg.Result[$tupleTpeBaseTpe[..${params.map(_.tpt)}]]].apply($pkg.Result(${name.decodedName.toString}, $tupleTpeBase(..${params
           .map(_.name)}))),
           $decodeFn[$out]
         )
@@ -37,7 +37,7 @@ abstract class EncoderGeneratorMacro {
       case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF =>
         q"""
         final val ${name}: $wireP.Encoded[$out] = (
-          $encodeFn[(String, Unit)].apply((${name.decodedName.toString}, ())),
+          $encodeFn[$pkg.Result[Unit]].apply($pkg.Result(${name.decodedName.toString}, ())),
           $decodeFn[$out]
         )"""
       case other =>
@@ -96,7 +96,9 @@ abstract class EncoderGeneratorMacro {
       case other =>
         c.abort(c.enclosingPosition, s"Illegal method [$other]")
     }
-    cases :+ cq"""other => throw new IllegalArgumentException(s"Unknown type tag $$other")"""
+    cases :+ cq"""other => 
+          println(bytes.mkString("Array(", ",", ")"))
+          throw new IllegalArgumentException(s"Unknown type tag $$other")"""
   }
 
   def apply[C <: CodecFactory[Impl]: TypeTag, Impl[_]](
@@ -130,8 +132,8 @@ abstract class EncoderGeneratorMacro {
         final val decoder: $wireP.Decoder[$pkg.PairE[$unifiedInvocation, $wireP.Encoder]] =
           new $wireP.Decoder[$pkg.PairE[$unifiedInvocation, $wireP.Encoder]] {
             final override def apply(bytes: _root_.scala.Array[Byte]) = {
-              $decodeFn[(String, Any)].apply(bytes).map {
-              case (key, $value) =>
+              $decodeFn[$pkg.Result[Any]].apply(bytes).map {
+              case $pkg.Result(key, $value) =>
                 key match {
                   case ..${decoderCases(traitStats, theF, unifiedBase, value, encodeFn, decodeFn)}
                 }

@@ -1,6 +1,7 @@
 package com.dispalt.taglessKryo.tests
 
 import cats.tagless.autoFunctorK
+import com.dispalt.taglessKryo.Default._
 import com.dispalt.taglessKryo.kryoEncoder
 
 object algs {
@@ -13,5 +14,6 @@ object algs {
     def id: F[String]
   }
 
+  //
   object SafeAlg
 }

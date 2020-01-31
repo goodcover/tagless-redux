@@ -16,12 +16,12 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
   def kryoImpl(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
 
-    val i = q"import _root_.com.dispalt.taglessKryo.Default._"
     annottees.map(_.tree).toList match {
-      case Nil                     => c.abort(c.enclosingPosition, "Unexpected error")
-      case (head: ClassDef) :: Nil => c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, head, None, i, Nil))
+      case Nil => c.abort(c.enclosingPosition, "Unexpected error")
+      case (head: ClassDef) :: Nil =>
+        c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, head, None, EmptyTree, Nil))
       case (classDef: ClassDef) :: (objectDef: ModuleDef) :: Nil =>
-        c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, classDef, Some(objectDef), i, Nil))
+        c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, classDef, Some(objectDef), EmptyTree, Nil))
     }
   }
 }

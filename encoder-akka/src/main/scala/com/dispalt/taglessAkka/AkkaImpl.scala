@@ -26,17 +26,14 @@ trait AkkaImpl[A] { self =>
 
 object AkkaImpl extends AnyValGenerator {
 
-  def instance[A](enc: A => Array[Byte])(dec: Array[Byte] => Try[A]): AkkaImpl[A] = new AkkaImpl[A] {
-    override def encode(a: A)           = enc(a)
-    override def decode(a: Array[Byte]) = dec(a)
-  }
-
   private def anyValInstance[A](size: Int, enc: (ByteBuffer, A) => ByteBuffer)(dec: ByteBuffer => A): AkkaImpl[A] =
     new AkkaImpl[A] {
+
       override def encode(a: A) = {
         val bb = ByteBuffer.allocate(size)
         enc(bb, a).array()
       }
+
       override def decode(a: Array[Byte]) = {
         Try(dec(ByteBuffer.wrap(a)))
       }
@@ -49,6 +46,7 @@ object AkkaImpl extends AnyValGenerator {
   implicit val akkaImplShort: AkkaImpl[Short]   = anyValInstance[Short](2, _.putShort(_))(_.getShort())
   implicit val akkaImplByte: AkkaImpl[Byte]     = anyValInstance[Byte](1, _.put(_))(_.get())
   implicit val akkaImplUnit: AkkaImpl[Unit]     = anyValInstance[Unit](0, (b, _) => b)(_ => ())
+
   implicit val akkaImplBoolean: AkkaImpl[Boolean] =
     anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(
       b => b.get() == 0x01.toByte
@@ -62,6 +60,7 @@ trait AnyValGenerator extends DefaultGenerator {
 }
 
 trait DefaultGenerator {
+
   implicit def akkaImplGen[A <: AnyRef](implicit system: ActorSystem, ct: ClassTag[A]): AkkaImpl[A] = {
     val ser   = SerializationExtension(system)
     val clazz = ser.serializerFor(ct.runtimeClass)
