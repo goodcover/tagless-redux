@@ -9,6 +9,9 @@ val libs = org.typelevel.libraries
 
 val taglessV = "0.11"
 val akkaV    = "2.6.3"
+val boopickleV    = "1.3.1"
+val scodecBitsV    = "1.1.6"
+val scodecCoreV    = "1.11.4"
 val chillV   = "0.9.5"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
@@ -17,7 +20,7 @@ ThisBuild / intellijBuild := "192.6817.14"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-akka`)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-akka`, `encoder-boopickle`)
 
 lazy val macros = (project in file("macros"))
   .settings(
@@ -69,6 +72,20 @@ lazy val `encoder-akka` = (project in file("encoder-akka"))
   .settings(
     name := "tagless-redux-encoder-akka",
     libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % akkaV),
+    macroSettings
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
+  .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
+
+  lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
+  .settings(
+    name := "tagless-redux-encoder-boopickle",
+    libraryDependencies ++= Seq(
+      "io.suzaku" %% "boopickle" % boopickleV,
+      "org.scodec" %% "scodec-bits" % scodecBitsV,
+    "org.scodec" %% "scodec-core" % scodecCoreV,
+      ),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)

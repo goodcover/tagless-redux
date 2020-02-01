@@ -18,7 +18,7 @@ class DerivationTests extends CatsTaglessTestSuite {
 
   test("derivation") {
 
-    implicit def fk2[T]: FunctorK[Foo2[T, ?[_]]] = Derive.functorK[Foo2[T, ?[_]]]
+    implicit def fk2[T]: FunctorK[Foo2[T, *[_]]] = Derive.functorK[Foo2[T, *[_]]]
     implicit def fk: FunctorK[Fooo]              = Derive.functorK[Fooo]
 
     locally {
