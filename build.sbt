@@ -120,7 +120,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
           |    <version>${version.value}</version>
           |    <vendor>tagless-redux</vendor>
-          |    <ideaVersion since-build="2018.1.0" until-build="2019.4.0">
+          |    <ideaVersion since-build="2018.1.0" until-build="2020.4.0">
           |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
           |                   implementation="com.dispalt.tagless.FunctorKInjector">
           |            <name>Tagless macro support</name>
