@@ -11,7 +11,7 @@ val taglessV = "0.11"
 val akkaV    = "2.6.3"
 val boopickleV    = "1.3.1"
 val scodecBitsV    = "1.1.13"
-val scodecCoreV    = "1.11.4"
+val scodecCoreV    = "1.11.5"
 val chillV   = "0.9.5"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
