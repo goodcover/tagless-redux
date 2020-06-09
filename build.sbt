@@ -10,7 +10,7 @@ val libs = org.typelevel.libraries
 val taglessV = "0.11"
 val akkaV    = "2.6.4"
 val boopickleV    = "1.3.1"
-val scodecBitsV    = "1.1.13"
+val scodecBitsV    = "1.1.16"
 val scodecCoreV    = "1.11.7"
 val chillV   = "0.9.5"
 
