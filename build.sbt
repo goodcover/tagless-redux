@@ -102,6 +102,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     intellijPlugins += "org.intellij.scala".toPlugin,
     packageMethod := PackagingMethod.Standalone(),
     scalaVersion := scalaV,
+    crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version    = version.value
       xml.sinceBuild = (intellijBuild in ThisBuild).value
@@ -158,7 +159,6 @@ lazy val buildSettings = sharedBuildSettings(gh, libs) ++ Seq(
 
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
-  scalaVersion := libs.vers("scalac_2.12"),
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   )
