@@ -34,9 +34,10 @@ object TwoWaySimulator {
   )(
     implicit M: WireProtocol[M],
     MI: FunctorK[M]
-  ): M[DecodingResultT[F, ?]] =
+  ): M[DecodingResultT[F, *]] =
     M.encoder
-      .mapK[DecodingResultT[F, ?]](new (WireProtocol.Encoded ~> DecodingResultT[F, ?]) {
+      .mapK[DecodingResultT[F, *]](new (WireProtocol.Encoded ~> DecodingResultT[F, *]) {
+
         override def apply[A](fa: (Array[Byte], Decoder[A])): F[Try[A]] = {
           server(fa._1).map(_.flatMap(fa._2.apply))
         }

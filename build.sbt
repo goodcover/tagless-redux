@@ -161,9 +161,10 @@ lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
-  )
+  ),
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.3").cross(CrossVersion.full)),
 ) ++
-  unidocCommonSettings ++
-  addCompilerPlugins(libs, "kind-projector")
+  unidocCommonSettings
+
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess
