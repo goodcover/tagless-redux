@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.12.10"
+ThisBuild / scalaVersion := "2.13.4"
 ThisBuild / organization := "com.dispalt"
 
 val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
@@ -13,9 +13,10 @@ val boopickleV    = "1.3.1"
 val scodecBitsV    = "1.1.23"
 val scodecCoreV    = "1.11.7"
 val chillV   = "0.9.5"
+val scalaV = "2.13.4"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
-ThisBuild / intellijBuild := "192.6817.14"
+ThisBuild / intellijBuild := "203.5981.41"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -98,13 +99,13 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .settings(
     name := "tagless-redux-ijext",
     intellijPluginName := name.value,
-    intellijExternalPlugins += "org.intellij.scala".toPlugin,
-    intellijInternalPlugins := Seq("properties", "java", "java-i18n"),
+    intellijPlugins += "org.intellij.scala".toPlugin,
     packageMethod := PackagingMethod.Standalone(),
+    scalaVersion := scalaV,
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version    = version.value
       xml.sinceBuild = (intellijBuild in ThisBuild).value
-      xml.untilBuild = "193.*"
+      xml.untilBuild = "203.*"
     },
     resourceGenerators in Compile += Def.task {
       val rootFolder = (resourceManaged in Compile).value / "META-INF"
@@ -120,7 +121,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
           |    <version>${version.value}</version>
           |    <vendor>tagless-redux</vendor>
-          |    <ideaVersion since-build="2018.1.0" until-build="2020.4.0">
+          |    <ideaVersion since-build="2020.3.0" until-build="2020.10.0">
           |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
           |                   implementation="com.dispalt.tagless.FunctorKInjector">
           |            <name>Tagless macro support</name>
@@ -166,5 +167,3 @@ lazy val commonSettings = sharedCommonSettings ++ Seq(
   addCompilerPlugins(libs, "kind-projector")
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess
-
-lazy val ideaRunner = createRunnerProject(`intellij-ijext`, "intellij-ijext-runner")
