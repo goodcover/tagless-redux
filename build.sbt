@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.13.4"
+ThisBuild / scalaVersion := "2.13.5"
 ThisBuild / organization := "com.dispalt"
 
 val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
@@ -13,7 +13,7 @@ val boopickleV    = "1.3.1"
 val scodecBitsV    = "1.1.24"
 val scodecCoreV    = "1.11.7"
 val chillV   = "0.9.5"
-val scalaV = "2.13.4"
+val scalaV = "2.13.5"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 ThisBuild / intellijBuild := "203.5981.41"
