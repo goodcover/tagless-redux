@@ -16,7 +16,6 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
   def akkaImpl(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     annottees.map(_.tree).toList match {
-      case Nil => c.abort(c.enclosingPosition, "Unexpected error")
       case (head: ClassDef) :: Nil =>
         c.Expr[Any](
           apply[AkkaCodecFactory.type, AkkaImpl](
@@ -37,6 +36,8 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
             Seq(q"system: _root_.akka.actor.ActorSystem")
           )
         )
+
+      case _ => c.abort(c.enclosingPosition, "Unexpected error")
     }
   }
 }

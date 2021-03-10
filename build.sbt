@@ -1,4 +1,12 @@
-ThisBuild / scalaVersion := "2.13.5"
+val scalaV      = "2.13.5"
+val taglessV    = "0.12"
+val akkaV       = "2.6.11"
+val boopickleV  = "1.3.1"
+val scodecBitsV = "1.1.24"
+val scodecCoreV = "1.11.7"
+val chillV      = "0.9.5"
+
+ThisBuild / scalaVersion := scalaV
 ThisBuild / organization := "com.dispalt"
 
 val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
@@ -6,14 +14,6 @@ val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "c
 val libs = org.typelevel.libraries
   .add("cats", "2.3.1")
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
-
-val taglessV = "0.12"
-val akkaV    = "2.6.11"
-val boopickleV    = "1.3.1"
-val scodecBitsV    = "1.1.24"
-val scodecCoreV    = "1.11.7"
-val chillV   = "0.9.5"
-val scalaV = "2.13.5"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 ThisBuild / intellijBuild := "203.5981.41"
@@ -78,14 +78,14 @@ lazy val `encoder-akka` = (project in file("encoder-akka"))
   .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
-  lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
+lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
   .settings(
     name := "tagless-redux-encoder-boopickle",
     libraryDependencies ++= Seq(
-      "io.suzaku" %% "boopickle" % boopickleV,
+      "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-    "org.scodec" %% "scodec-core" % scodecCoreV,
-      ),
+      "org.scodec" %% "scodec-core" % scodecCoreV
+    ),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -135,35 +135,33 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     }
   )
 
-  lazy val paradisePlugin = Def.setting {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, v)) if v <= 12 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch))
-      case _ =>
-        // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
-        // https://github.com/scala/scala/pull/6606
-        Nil
-    }
+lazy val paradisePlugin = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, v)) if v <= 12 =>
+      Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch))
+    case _ =>
+      // if scala 2.13.0-M4 or later, macro annotations merged into scala-reflect
+      // https://github.com/scala/scala/pull/6606
+      Nil
   }
+}
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),
   resolvers += Resolver.bintrayRepo("scalameta", "maven"),
-  libraryDependencies ++= paradisePlugin.value,
+  libraryDependencies ++= paradisePlugin.value
 )
 
-lazy val buildSettings = sharedBuildSettings(gh, libs) ++ Seq(
-  crossScalaVersions := Seq(scalaVersion.value, libs.vers("scalac_2.13")),
-) ++ scalacAllSettings
+lazy val buildSettings =
+  sharedBuildSettings(gh, libs) ++ Seq(crossScalaVersions := Seq(scalaVersion.value, scalaV)) ++ scalacAllSettings
 
 lazy val commonSettings = sharedCommonSettings ++ Seq(
   parallelExecution in Test := false,
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   ),
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.3").cross(CrossVersion.full)),
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.3").cross(CrossVersion.full))
 ) ++
   unidocCommonSettings
-
 
 lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess

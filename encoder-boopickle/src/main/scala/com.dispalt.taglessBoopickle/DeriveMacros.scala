@@ -89,8 +89,10 @@ class DeriveMacros(val c: blackbox.Context) {
     val stubs =
       overridableMethodsOf(instance).map(_.definition)
 
-    val Block(List(declaration), _) = typeCheckWithFreshTypeParams(q"new $instance { ..$stubs }")
-    declaration
+    typeCheckWithFreshTypeParams(q"new $instance { ..$stubs }") match {
+      case Block(List(declaration), _) => declaration
+      case _                           => c.abort(c.enclosingPosition, "Expected a block")
+    }
   }
 
   /** Implement a possibly refined `algebra` with the provided `members`. */
@@ -114,28 +116,31 @@ class DeriveMacros(val c: blackbox.Context) {
     * `rhs` should define a mapping for each method (by name) to an implementation function based on type signature.
     */
   def instantiate(typeClass: TypeSymbol, params: Type*)(rhs: (String, Type => Tree)*): Tree = {
-    val impl                                                              = rhs.toMap
-    val TcA                                                               = appliedType(typeClass, params: _*)
-    val declaration @ ClassDef(_, _, _, Template(parents, self, members)) = declare(TcA)
-    val implementations =
-      for (member <- members)
-        yield member match {
-          case dd: DefDef =>
-            val method = member.symbol.asMethod
-            impl
-              .get(method.name.toString)
-              .fold(dd)(f => defDef(method, f(method.typeSignatureIn(TcA))))
-          case other => other
+    val impl = rhs.toMap
+    val TcA  = appliedType(typeClass, params: _*)
+    declare(TcA) match {
+      case declaration @ ClassDef(_, _, _, Template(parents, self, members)) =>
+        val implementations =
+          for (member <- members)
+            yield member match {
+              case dd: DefDef =>
+                val method = member.symbol.asMethod
+                impl
+                  .get(method.name.toString)
+                  .fold(dd)(f => defDef(method, f(method.typeSignatureIn(TcA))))
+              case other => other
+            }
+
+        val definition =
+          classDef(declaration.symbol, Template(parents, self, implementations))
+        val result = typeCheckWithFreshTypeParams(q"{ $definition; new ${declaration.symbol} }")
+
+        if (System.getProperty("tagless.macro.debug", "false") == "true") {
+          println(show(result))
         }
-
-    val definition =
-      classDef(declaration.symbol, Template(parents, self, implementations))
-    val result = typeCheckWithFreshTypeParams(q"{ $definition; new ${declaration.symbol} }")
-
-    if (System.getProperty("tagless.macro.debug", "false") == "true") {
-      println(show(result))
+        result
+      case _ => c.abort(c.enclosingPosition, "Expected a class definition")
     }
-    result
   }
 
   def encoder(algebra: Type): (String, Type => Tree) =
@@ -151,6 +156,7 @@ class DeriveMacros(val c: blackbox.Context) {
           method
             .copy(rt = appliedType(symbolOf[Encoded[Any]].toType, outParams.last), body = body)
             .definition
+        case _ => c.abort(c.enclosingPosition, "Expected a method")
       }
       implement(appliedType(algebra, symbolOf[Encoded[Any]].toTypeConstructor), methods)
     }
@@ -183,6 +189,7 @@ class DeriveMacros(val c: blackbox.Context) {
               val members = toStringImpl :: overridableMethodsOf(Invocation).map {
                 case m @ Method(_, _, List(List(ValDef(_, ps, _, _))), _, _) =>
                   m.copy(body = runImplementation(ps)).definition
+                case _ => c.abort(c.enclosingPosition, "Expected a method")
               }.toList
 
               val invocation = implement(Invocation, members)
@@ -204,13 +211,14 @@ class DeriveMacros(val c: blackbox.Context) {
                   """
 
               q"if (hint == ${name.name.toString}) $pair else $acc"
+            case _ => c.abort(c.enclosingPosition, "Expected method")
           }
 
       val out = q"""
            new ${t.finalResultType} {
              final override def apply(bytes: Array[Byte]) =
               scala.util.Try {
-                
+
                 val state = _root_.boopickle.UnpickleState(_root_.java.nio.ByteBuffer.wrap(bytes))
                 val hint = state.unpickle[String]
                 $ifs

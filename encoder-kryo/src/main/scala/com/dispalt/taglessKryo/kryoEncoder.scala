@@ -17,11 +17,11 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
     import c.universe._
 
     annottees.map(_.tree).toList match {
-      case Nil => c.abort(c.enclosingPosition, "Unexpected error")
       case (head: ClassDef) :: Nil =>
         c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, head, None, EmptyTree, Nil))
       case (classDef: ClassDef) :: (objectDef: ModuleDef) :: Nil =>
         c.Expr[Any](apply[KryoCodec.type, KryoImpl](KryoCodec, classDef, Some(objectDef), EmptyTree, Nil))
+      case _ => c.abort(c.enclosingPosition, "Unexpected error")
     }
   }
 }
