@@ -31,12 +31,11 @@ lazy val macros = (project in file("macros"))
     resourceGenerators in Compile += Def.task {
       val rootFolder = (resourceManaged in Compile).value / "META-INF"
       rootFolder.mkdirs()
+      val compatFile = rootFolder / "intellij-compat.json"
 
-      IO.write(rootFolder / "intellij-compat.json", s"""{
-         |  "artifact": "com.dispalt % tagless-redux-ijext_2.12 % ${version.value}"
-         |}""".stripMargin)
+      IO.write(compatFile, s"""{ "artifact": "com.dispalt % tagless-redux-ijext_2.13 % ${version.value}" }""")
 
-      Seq(rootFolder / "intellij-compat.json")
+      Seq(compatFile)
     }
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)

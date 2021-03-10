@@ -55,9 +55,7 @@ abstract class EncoderGeneratorMacro {
   ): Seq[Tree] = {
     val cases = traitStats.map {
       case q"def ${name: TermName}[..$tps](..${params: List[ValDef]}): ${Ident(someF)}[$out]" if someF == theF =>
-        val typeInTypeOut = params.map { p =>
-          toType(p.tpt)
-        }.toVector
+        val typeInTypeOut = params.map { p => toType(p.tpt) }.toVector
 
         val arglist = (1 to params.size).map(i => (i, s"_$i")).map {
           case (i, x) =>
@@ -96,7 +94,7 @@ abstract class EncoderGeneratorMacro {
       case other =>
         c.abort(c.enclosingPosition, s"Illegal method [$other]")
     }
-    cases :+ cq"""other => 
+    cases :+ cq"""other =>
           println(bytes.mkString("Array(", ",", ")"))
           throw new IllegalArgumentException(s"Unknown type tag $$other")"""
   }
@@ -161,7 +159,7 @@ abstract class EncoderGeneratorMacro {
           ..$objDefs
           ..$companionStats
         }"""
-      case None =>
+      case _ =>
         q"object ${base.name.toTermName} { ..$companionStats }"
 
     }
