@@ -1,4 +1,4 @@
-val scalaV      = "2.13.5"
+val scalaV      = "2.13.8"
 val taglessV    = "0.12"
 val akkaV       = "2.6.11"
 val boopickleV  = "1.3.1"
@@ -16,7 +16,7 @@ val libs = org.typelevel.libraries
   .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
-ThisBuild / intellijBuild := "203.5981.41"
+ThisBuild / intellijBuild := "221.5080.56"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -121,7 +121,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
           |    <version>${version.value}</version>
           |    <vendor>tagless-redux</vendor>
-          |    <ideaVersion since-build="2020.3.0" until-build="2021.10.0">
+          |    <ideaVersion since-build="2020.3.0" until-build="2022.4.0">
           |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
           |                   implementation="com.dispalt.tagless.FunctorKInjector">
           |            <name>Tagless macro support</name>
@@ -160,7 +160,7 @@ lazy val commonSettings = sharedCommonSettings ++ Seq(
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   ),
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.11.3").cross(CrossVersion.full))
+  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full))
 ) ++
   unidocCommonSettings
 
