@@ -1,5 +1,5 @@
 val scalaV      = "2.13.8"
-val taglessV    = "0.12"
+val taglessV    = "0.14.0"
 val akkaV       = "2.6.11"
 val boopickleV  = "1.3.1"
 val scodecBitsV = "1.1.24"
