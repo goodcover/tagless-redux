@@ -3,7 +3,7 @@ val taglessV    = "0.12"
 val akkaV       = "2.6.19"
 val boopickleV  = "1.3.1"
 val scodecBitsV = "1.1.31"
-val scodecCoreV = "1.11.7"
+val scodecCoreV = "1.11.9"
 val chillV      = "0.10.0"
 
 ThisBuild / scalaVersion := scalaV
