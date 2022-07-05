@@ -2,7 +2,7 @@ val scalaV      = "2.13.8"
 val taglessV    = "0.12"
 val akkaV       = "2.6.19"
 val boopickleV  = "1.3.1"
-val scodecBitsV = "1.1.31"
+val scodecBitsV = "1.1.34"
 val scodecCoreV = "1.11.9"
 val chillV      = "0.10.0"
 
