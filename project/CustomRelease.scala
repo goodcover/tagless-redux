@@ -1,15 +1,9 @@
 package sbtrelease
 
 import sbt._
-import sbt.Keys._
-import sbt.Package.ManifestAttributes
+import sbtrelease.ReleasePlugin.autoImport._
 
-import annotation.tailrec
-import ReleasePlugin.autoImport._
-import ReleaseKeys._
-import sbtrelease.ReleaseStateTransformations.commitVersion
-
-import scala.sys.process.{Process, ProcessLogger}
+import scala.sys.process.ProcessLogger
 
 object CustomRelease {
   import Utilities._
@@ -26,9 +20,7 @@ object CustomRelease {
       .getOrElse(sys.error("Aborting release. Working directory is not a repository of a recognized VCS."))
   }
 
-  lazy val commitNextVersion = { st: State =>
-    commitVersion(st, releaseNextCommitMessage)
-  }
+  lazy val commitNextVersion = { st: State => commitVersion(st, releaseNextCommitMessage) }
 
   def commitVersion: (State, TaskKey[String]) => State = { (st: State, commitMessage: TaskKey[String]) =>
     val log     = toProcessLogger(st)
@@ -40,12 +32,7 @@ object CustomRelease {
       .relativize(base, file)
       .getOrElse("Version file [%s] is outside of this VCS repository with base directory [%s]!" format (file, base))
 
-    val packageJson = IO
-      .relativize(base, st.extract.get(baseDirectory) / "node-compiler" / "package.json")
-      .getOrElse("Version file [%s] is outside of this VCS repository with base directory [%s]!" format (file, base))
-
     vcs(st).add(relativePath) !! log
-    vcs(st).add(packageJson) !! log
     val status = vcs(st).status.!!.trim
 
     val newState = if (status.nonEmpty) {
