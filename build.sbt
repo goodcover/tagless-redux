@@ -204,6 +204,12 @@ lazy val commonSettings = Seq(
   addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full))
 )
 
+lazy val mavenSettings: Seq[Setting[_]] = Seq(publishMavenStyle := true, publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+})
+
 lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/ Seq(
   releaseProcess :=
     Seq[ReleaseStep](
@@ -219,5 +225,10 @@ lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/
       releaseStepCommandAndRemaining("sonatypeReleaseAll"),
       setNextVersion,
       pushChanges
-    )
-)
+    ),
+  homepage := Some(url(s"https://github.com/goodcover/tagless-redux")),
+  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  scmInfo := Some(
+    ScmInfo(url("https://github.com/goodcover/tagless-redux"), "scm:git:git@github.com:goodcover/tagless-redux.git")
+  )
+) ++ mavenSettings
