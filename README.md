@@ -13,4 +13,4 @@ So thank you [Kailuo Wang](http://kailuowang.com)
 Apache 2
 
 ### TODO
-- [ ] Get the library extensions with intellij going.  [Read more about it](https://github.com/JetBrains/intellij-scala/wiki/Library-Extensions)
+- [x] Get the library extensions with intellij going.  [Read more about it](https://github.com/JetBrains/intellij-scala/wiki/Library-Extensions)
