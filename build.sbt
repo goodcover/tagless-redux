@@ -197,8 +197,8 @@ lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion := scalaV,
   crossScalaVersions := Seq(scalaV),
-  organization := "com.dispalt.relay", // TODO - Coordinates
-  sonatypeProfileName := "com.dispalt", // TODO - Coordinates
+  organization := "com.dispalt.redux",
+  sonatypeProfileName := "com.dispalt",
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   ),
