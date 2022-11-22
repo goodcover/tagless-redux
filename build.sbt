@@ -1,5 +1,6 @@
 import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
 import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.CustomRelease
 
 val scalaV      = "2.13.8"
 val taglessV    = "0.12"
@@ -224,6 +225,7 @@ lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/
       releaseStepCommandAndRemaining("+ publishSigned"),
       releaseStepCommandAndRemaining("sonatypeReleaseAll"),
       setNextVersion,
+      CustomRelease.commitNextVersion,
       pushChanges
     ),
   homepage := Some(url(s"https://github.com/goodcover/tagless-redux")),
