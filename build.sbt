@@ -1,22 +1,41 @@
-val scalaV      = "2.13.8"
+import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
+import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.CustomRelease
+
+val scalaV      = "2.13.10"
 val taglessV    = "0.14.0"
 val akkaV       = "2.6.19"
+val catsV       = "2.9.0"
 val boopickleV  = "1.3.1"
-val scodecBitsV = "1.1.24"
-val scodecCoreV = "1.11.7"
+val scodecBitsV = "1.1.31"
+val scodecCoreV = "1.11.10"
 val chillV      = "0.10.0"
+val scalaTestV  = "3.2.14"
+
+val deps = Seq(
+  "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2",
+  "org.typelevel"     %% "cats-core"                % catsV,
+  "org.typelevel"     %% "cats-free"                % catsV,
+  "org.scalatest"     %% "scalatest"                % scalaTestV
+)
+
+lazy val macroAnnotationSettings = Seq(
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
+  scalacOptions ++= {
+    if (scalaVersion.value == scalaV) Seq("-Ymacro-annotations")
+    else Seq("-Xfuture")
+  },
+  libraryDependencies ++= {
+    if (scalaVersion.value == scalaV) Seq.empty
+    else Seq(compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full)))
+  }
+)
 
 ThisBuild / scalaVersion := scalaV
 ThisBuild / organization := "com.dispalt"
 
-val gh = GitHubSettings(org = "dispalt", proj = "tagless-redux", publishOrg = "com.dispalt", license = apache)
-
-val libs = org.typelevel.libraries
-  .add("cats", "2.3.1")
-  .add("scalatestplus", version = "3.1.0.0-RC2", org = "org.scalatestplus", "scalatestplus-scalacheck")
-
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
-ThisBuild / intellijBuild := "221.5080.56"
+ThisBuild / intellijBuild := "223.7571.58"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -28,8 +47,8 @@ lazy val macros = (project in file("macros"))
     name := "tagless-redux-macros",
     libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV,
     macroSettings,
-    resourceGenerators in Compile += Def.task {
-      val rootFolder = (resourceManaged in Compile).value / "META-INF"
+    Compile / resourceGenerators += Def.task {
+      val rootFolder = (Compile / resourceManaged).value / "META-INF"
       rootFolder.mkdirs()
       val compatFile = rootFolder / "intellij-compat.json"
 
@@ -39,9 +58,8 @@ lazy val macros = (project in file("macros"))
     }
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(libs.dependency("cats-core"))
-  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"))
-  .settings(scalaMacroDependencies(libs))
+  .settings(libraryDependencies ++= deps)
+  .settings(macroAnnotationSettings)
 
 lazy val tests = (project in file("tests"))
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -55,8 +73,7 @@ lazy val `encoder-macros` = (project in file("encoder-macros"))
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(scalaMacroDependencies(libs))
-  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"))
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
 
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
@@ -65,7 +82,7 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `encoder-akka` = (project in file("encoder-akka"))
@@ -75,7 +92,7 @@ lazy val `encoder-akka` = (project in file("encoder-akka"))
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
@@ -89,7 +106,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .settings(libs.testDependencies("scalatest", "cats-free", "cats-effect"), scalaMacroDependencies(libs))
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
 lazy val `intellij-ijext` = (project in file("intellij-ijext"))
@@ -99,16 +116,17 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     name := "tagless-redux-ijext",
     intellijPluginName := name.value,
     intellijPlugins += "org.intellij.scala".toPlugin,
+    intellijBuild := "223.7571.58",
     packageMethod := PackagingMethod.Standalone(),
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version    = version.value
-      xml.sinceBuild = (intellijBuild in ThisBuild).value
-      xml.untilBuild = "203.*"
+      xml.sinceBuild = (ThisBuild / intellijBuild).value
+      xml.untilBuild = "231.*"
     },
-    resourceGenerators in Compile += Def.task {
-      val rootFolder = (resourceManaged in Compile).value / "META-INF"
+    Compile / resourceGenerators += Def.task {
+      val rootFolder = (Compile / resourceManaged).value / "META-INF"
       rootFolder.mkdirs()
       val fileOut = rootFolder / "intellij-compat.xml"
 
@@ -121,7 +139,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
           |    <version>${version.value}</version>
           |    <vendor>tagless-redux</vendor>
-          |    <ideaVersion since-build="2020.3.0" until-build="2022.4.0">
+          |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
           |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
           |                   implementation="com.dispalt.tagless.FunctorKInjector">
           |            <name>Tagless macro support</name>
@@ -147,21 +165,72 @@ lazy val paradisePlugin = Def.setting {
 }
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
-  resolvers += Resolver.sonatypeRepo("releases"),
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
   resolvers += Resolver.bintrayRepo("scalameta", "maven"),
   libraryDependencies ++= paradisePlugin.value
 )
 
-lazy val buildSettings =
-  sharedBuildSettings(gh, libs) ++ Seq(crossScalaVersions := Seq(scalaVersion.value, scalaV)) ++ scalacAllSettings
+lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(publish / skip := true)
 
-lazy val commonSettings = sharedCommonSettings ++ Seq(
-  parallelExecution in Test := false,
+lazy val buildSettings =
+  /*sharedBuildSettings(gh, libs) ++*/ Seq(
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-encoding",
+      "UTF-8",
+      "-unchecked",
+      "-Xlint",
+      //    "-Yno-adapted-args",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-value-discard",
+      "-language:_",
+      "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
+      "-language:experimental.macros", // Allow macro definition (besides implementation and application)
+      "-language:higherKinds", // Allow higher-kinded types
+      "-language:implicitConversions" // Allow definition of implicit functions called views
+    )
+  )
+
+lazy val commonSettings = Seq(
+  Test / parallelExecution := false,
+  scalaVersion := scalaV,
+  crossScalaVersions := Seq(scalaV),
+  organization := "com.dispalt.redux",
+  sonatypeProfileName := "com.dispalt",
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   ),
   addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full))
-) ++
-  unidocCommonSettings
+)
 
-lazy val publishSettings = sharedPublishSettings(gh) ++ sharedReleaseProcess
+lazy val mavenSettings: Seq[Setting[_]] = Seq(publishMavenStyle := true, publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+})
+
+lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/ Seq(
+  releaseProcess :=
+    Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      releaseStepCommandAndRemaining("+ test"),
+      releaseStepCommandAndRemaining(";+ intellij-ijext/updateIntellij ;+ intellij-ijext/test"),
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+ publishSigned"),
+      releaseStepCommandAndRemaining("sonatypeReleaseAll"),
+      setNextVersion,
+      CustomRelease.commitNextVersion,
+      pushChanges
+    ),
+  homepage := Some(url(s"https://github.com/goodcover/tagless-redux")),
+  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  scmInfo := Some(
+    ScmInfo(url("https://github.com/goodcover/tagless-redux"), "scm:git:git@github.com:goodcover/tagless-redux.git")
+  )
+) ++ mavenSettings
