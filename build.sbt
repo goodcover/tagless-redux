@@ -8,7 +8,7 @@ val akkaV       = "2.6.19"
 val catsV       = "2.7.0"
 val boopickleV  = "1.3.1"
 val scodecBitsV = "1.1.31"
-val scodecCoreV = "1.11.9"
+val scodecCoreV = "1.11.10"
 val chillV      = "0.10.0"
 val scalaTestV  = "3.2.9"
 
