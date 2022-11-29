@@ -2,11 +2,10 @@ package cats.tagless.tests
 
 import cats.tagless.FunctorK
 import cats.tagless.tests.WireProtocolSpec.QuoteAlg
-import cats.{~>, Eval, Id}
+import cats.{~>, Id}
+import com.dispalt.tagless.util.WireProtocol.{Decoder, Invocation}
 import com.dispalt.tagless.util.{PairE, WireProtocol}
-import com.dispalt.tagless.util.WireProtocol.{Decoder, Encoded, Invocation}
 import com.dispalt.taglessKryo.Default.LocalInjector
-import com.esotericsoftware.kryo.pool.KryoPool
 import org.scalatest.flatspec.AnyFlatSpec
 
 import java.nio.ByteBuffer
@@ -16,24 +15,27 @@ class WireProtocolSpec extends AnyFlatSpec {
 
   it should "manually produce a wire protocol" in {
     // Summon the implicit
-    val wp = WireProtocol[QuoteAlg]
+    val wp     = WireProtocol[QuoteAlg]
+    var incNum = 0
 
     // Mock the server side implementation, work is a pass through,
     // inc always equals 1
     val impl: QuoteAlg[Id] = new QuoteAlg[Id] {
       override def complete(work: Boolean): Id[Boolean] = work
 
-      override def inc: Id[Int] = 1
+      override def inc: Id[Int] = { incNum += 1; incNum }
     }
 
     val workShouldBeThis = true
 
+    // === CLIENT Side ===
     // With the `wp.encoder` you convert the tagless algebra into two parts
     //  the payload of the call to, in this case, complete, and the decoder
     //  of the return value.
     // Think of this as happening on the client side
     val (payload, howToDecodeResultFromServer) = wp.encoder.complete(workShouldBeThis)
 
+    // ===  SERVER Side ===
     // Assuming the result is now making it to the server side.
     //  We decode what was sent us, `payload`..
     //  We then use that to invoke the server side algebra with the
@@ -42,6 +44,7 @@ class WireProtocolSpec extends AnyFlatSpec {
     val resultPair  = wp.decoder.apply(payload).get
     val finalResult = resultPair.second(resultPair.first.run[Id](impl))
 
+    // === Back on the CLIENT Side ===
     // `finalResult` now holds the result from the server, we decode that back on the client
     // and, tada, we have a result.
     assert(howToDecodeResultFromServer.apply(finalResult).get == workShouldBeThis)
