@@ -64,7 +64,7 @@ lazy val macros = (project in file("macros"))
 lazy val tests = (project in file("tests"))
   .settings(commonSettings ++ buildSettings ++ publishSettings)
   .settings(name := "tagless-redux-tests", noPublishSettings, macroSettings)
-  .dependsOn(macros % "compile->compile;test->test")
+  .dependsOn(macros % "compile->compile;test->test", `encoder-macros`, `encoder-kryo`)
 
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
