@@ -32,7 +32,7 @@ lazy val macroAnnotationSettings = Seq(
 )
 
 ThisBuild / scalaVersion := scalaV
-ThisBuild / organization := "com.dispalt"
+ThisBuild / organization := "com.dispalt.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 ThisBuild / intellijBuild := "223.7571.58"
@@ -52,7 +52,7 @@ lazy val macros = (project in file("macros"))
       rootFolder.mkdirs()
       val compatFile = rootFolder / "intellij-compat.json"
 
-      IO.write(compatFile, s"""{ "artifact": "com.dispalt % tagless-redux-ijext_2.13 % ${version.value}" }""")
+      IO.write(compatFile, s"""{ "artifact": "${(ThisBuild / organization).value} % tagless-redux-ijext_2.13 % ${version.value}" }""")
 
       Seq(compatFile)
     }
