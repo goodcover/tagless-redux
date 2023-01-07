@@ -10,7 +10,7 @@ val boopickleV  = "1.3.1"
 val scodecBitsV = "1.1.31"
 val scodecCoreV = "1.11.10"
 val chillV      = "0.10.0"
-val scalaTestV  = "3.2.14"
+val scalaTestV  = "3.2.15"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2",
@@ -52,7 +52,10 @@ lazy val macros = (project in file("macros"))
       rootFolder.mkdirs()
       val compatFile = rootFolder / "intellij-compat.json"
 
-      IO.write(compatFile, s"""{ "artifact": "${(ThisBuild / organization).value} % tagless-redux-ijext_2.13 % ${version.value}" }""")
+      IO.write(
+        compatFile,
+        s"""{ "artifact": "${(ThisBuild / organization).value} % tagless-redux-ijext_2.13 % ${version.value}" }"""
+      )
 
       Seq(compatFile)
     }
