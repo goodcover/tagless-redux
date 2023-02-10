@@ -1,4 +1,4 @@
-addSbtPlugin("org.jetbrains"  % "sbt-idea-plugin" % "3.18.3")
+addSbtPlugin("org.jetbrains"  % "sbt-idea-plugin" % "3.19.1")
 addSbtPlugin("com.github.sbt" % "sbt-release"     % "1.1.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"    % "3.9.17")
 addSbtPlugin("com.github.sbt" % "sbt-release"     % "1.1.0")
