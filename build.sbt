@@ -2,21 +2,21 @@ import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.CustomRelease
 
-val scalaV      = "2.13.10"
-val taglessV    = "0.14.0"
-val akkaV       = "2.6.19"
-val catsV       = "2.9.0"
-val boopickleV  = "1.3.1"
+val scalaV = "2.13.10"
+val taglessV = "0.14.0"
+val akkaV = "2.6.19"
+val catsV = "2.9.0"
+val boopickleV = "1.3.1"
 val scodecBitsV = "1.1.36"
 val scodecCoreV = "1.11.10"
-val chillV      = "0.10.0"
-val scalaTestV  = "3.2.15"
+val chillV = "0.10.0"
+val scalaTestV = "3.2.15"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2",
-  "org.typelevel"     %% "cats-core"                % catsV,
-  "org.typelevel"     %% "cats-free"                % catsV,
-  "org.scalatest"     %% "scalatest"                % scalaTestV
+  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.14.0",
+  "org.typelevel" %% "cats-core" % catsV,
+  "org.typelevel" %% "cats-free" % catsV,
+  "org.scalatest" %% "scalatest" % scalaTestV
 )
 
 lazy val macroAnnotationSettings = Seq(
@@ -102,7 +102,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
   .settings(
     name := "tagless-redux-encoder-boopickle",
     libraryDependencies ++= Seq(
-      "io.suzaku"  %% "boopickle"   % boopickleV,
+      "io.suzaku" %% "boopickle" % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
       "org.scodec" %% "scodec-core" % scodecCoreV
     ),
@@ -124,7 +124,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
-      xml.version    = version.value
+      xml.version = version.value
       xml.sinceBuild = (ThisBuild / intellijBuild).value
       xml.untilBuild = "231.*"
     },
@@ -133,23 +133,24 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
       rootFolder.mkdirs()
       val fileOut = rootFolder / "intellij-compat.xml"
 
-      IO.write(fileOut, s"""
-          |<!DOCTYPE intellij-compat PUBLIC "Plugin/DTD"
-          |        "https://raw.githubusercontent.com/JetBrains/intellij-scala/idea183.x/scala/scala-impl/src/org/jetbrains/plugins/scala/components/libextensions/intellij-compat.dtd">
-          |<intellij-compat>
-          |    <id>dispalt.taglessRedux</id>
-          |    <name>Tagless Intellij Support</name>
-          |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
-          |    <version>${version.value}</version>
-          |    <vendor>tagless-redux</vendor>
-          |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
-          |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
-          |                   implementation="com.dispalt.tagless.FunctorKInjector">
-          |            <name>Tagless macro support</name>
-          |            <description>FunctorK injector</description>
-          |        </extension>
-          |    </ideaVersion>
-          |</intellij-compat>
+      IO.write(fileOut,
+        s"""
+           |<!DOCTYPE intellij-compat PUBLIC "Plugin/DTD"
+           |        "https://raw.githubusercontent.com/JetBrains/intellij-scala/idea183.x/scala/scala-impl/src/org/jetbrains/plugins/scala/components/libextensions/intellij-compat.dtd">
+           |<intellij-compat>
+           |    <id>dispalt.taglessRedux</id>
+           |    <name>Tagless Intellij Support</name>
+           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
+           |    <version>${version.value}</version>
+           |    <vendor>tagless-redux</vendor>
+           |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
+           |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
+           |                   implementation="com.dispalt.tagless.FunctorKInjector">
+           |            <name>Tagless macro support</name>
+           |            <description>FunctorK injector</description>
+           |        </extension>
+           |    </ideaVersion>
+           |</intellij-compat>
           """.stripMargin)
 
       Seq(fileOut)
@@ -176,25 +177,25 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
 lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(publish / skip := true)
 
 lazy val buildSettings =
-  /*sharedBuildSettings(gh, libs) ++*/ Seq(
-    scalacOptions ++= Seq(
-      "-feature",
-      "-deprecation",
-      "-encoding",
-      "UTF-8",
-      "-unchecked",
-      "-Xlint",
-      //    "-Yno-adapted-args",
-      "-Ywarn-dead-code",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard",
-      "-language:_",
-      "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
-      "-language:experimental.macros", // Allow macro definition (besides implementation and application)
-      "-language:higherKinds", // Allow higher-kinded types
-      "-language:implicitConversions" // Allow definition of implicit functions called views
-    )
+/*sharedBuildSettings(gh, libs) ++*/ Seq(
+  scalacOptions ++= Seq(
+    "-feature",
+    "-deprecation",
+    "-encoding",
+    "UTF-8",
+    "-unchecked",
+    "-Xlint",
+    //    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-value-discard",
+    "-language:_",
+    "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
+    "-language:experimental.macros", // Allow macro definition (besides implementation and application)
+    "-language:higherKinds", // Allow higher-kinded types
+    "-language:implicitConversions" // Allow definition of implicit functions called views
   )
+)
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
@@ -205,8 +206,12 @@ lazy val commonSettings = Seq(
   developers := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
   ),
-  addCompilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full))
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq.empty
+    case _ => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
+  })
 )
+
 
 lazy val mavenSettings: Seq[Setting[_]] = Seq(publishMavenStyle := true, publishTo := {
   val nexus = "https://oss.sonatype.org/"
