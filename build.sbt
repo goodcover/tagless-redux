@@ -2,34 +2,33 @@ import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.CustomRelease
 
-val scalaV = "2.13.10"
-val taglessV = "0.14.0-207-862736d-SNAPSHOT"
-val akkaV = "2.6.19"
-val catsV = "2.9.0"
-val boopickleV = "1.4.0"
+val scalaV      = "2.13.10"
+val taglessV    = "0.14.0-207-862736d-SNAPSHOT"
+val akkaV       = "2.6.19"
+val catsV       = "2.9.0"
+val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.36"
-val chillV = "0.10.0"
-val scalaTestV = "3.2.15"
+val chillV      = "0.10.0"
+val scalaTestV  = "3.2.15"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalacheck-1-17" % "3.2.14.0",
-  "org.typelevel" %% "cats-core" % catsV,
-  "org.typelevel" %% "cats-free" % catsV,
-  "org.scalatest" %% "scalatest" % scalaTestV
+  "org.typelevel"     %% "cats-core"       % catsV,
+  "org.typelevel"     %% "cats-free"       % catsV,
+  "org.scalatest"     %% "scalatest"       % scalaTestV
 )
 
 lazy val macroAnnotationSettings = Seq(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _)) => Seq("-Ykind-projector")
+    case Some((3, _))  => Seq("-Ykind-projector")
     case Some((2, 13)) => Seq("-Ymacro-annotations")
-    case _ => Seq("-Xfuture")
+    case _             => Seq("-Xfuture")
   }),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) | Some((2, 13)) => Seq.empty
-    case _ => Seq(compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full)))
-  }
-    )
+    case _                            => Seq(compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full)))
+  })
 )
 
 ThisBuild / scalaVersion := scalaV
@@ -47,10 +46,7 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq.empty
-      case _ => Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test")
-    }),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test"),
     macroSettings,
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -77,10 +73,7 @@ lazy val tests = (project in file("tests"))
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq.empty
-      case _ => Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test")
-    }),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test"),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -110,7 +103,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
   .settings(
     name := "tagless-redux-encoder-boopickle",
     libraryDependencies ++= Seq(
-      "io.suzaku" %% "boopickle" % boopickleV,
+      "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
       "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.1.0")
     ),
@@ -132,7 +125,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
-      xml.version = version.value
+      xml.version    = version.value
       xml.sinceBuild = (ThisBuild / intellijBuild).value
       xml.untilBuild = "231.*"
     },
@@ -141,8 +134,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
       rootFolder.mkdirs()
       val fileOut = rootFolder / "intellij-compat.xml"
 
-      IO.write(fileOut,
-        s"""
+      IO.write(fileOut, s"""
            |<!DOCTYPE intellij-compat PUBLIC "Plugin/DTD"
            |        "https://raw.githubusercontent.com/JetBrains/intellij-scala/idea183.x/scala/scala-impl/src/org/jetbrains/plugins/scala/components/libextensions/intellij-compat.dtd">
            |<intellij-compat>
@@ -185,25 +177,25 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
 lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(publish / skip := true)
 
 lazy val buildSettings =
-/*sharedBuildSettings(gh, libs) ++*/ Seq(
-  scalacOptions ++= Seq(
-    "-feature",
-    "-deprecation",
-    "-encoding",
-    "UTF-8",
-    "-unchecked",
-    "-Xlint",
-    //    "-Yno-adapted-args",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard",
-    "-language:_",
-    "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
-    "-language:experimental.macros", // Allow macro definition (besides implementation and application)
-    "-language:higherKinds", // Allow higher-kinded types
-    "-language:implicitConversions" // Allow definition of implicit functions called views
+  /*sharedBuildSettings(gh, libs) ++*/ Seq(
+    scalacOptions ++= Seq(
+      "-feature",
+      "-deprecation",
+      "-encoding",
+      "UTF-8",
+      "-unchecked",
+      "-Xlint",
+      //    "-Yno-adapted-args",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Ywarn-value-discard",
+      "-language:_",
+      "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
+      "-language:experimental.macros", // Allow macro definition (besides implementation and application)
+      "-language:higherKinds", // Allow higher-kinded types
+      "-language:implicitConversions" // Allow definition of implicit functions called views
+    )
   )
-)
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
@@ -216,10 +208,9 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
-    case _ => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
+    case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
   })
 )
-
 
 lazy val mavenSettings: Seq[Setting[_]] = Seq(publishMavenStyle := true, publishTo := {
   val nexus = "https://oss.sonatype.org/"
