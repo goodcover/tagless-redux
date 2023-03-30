@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV,
+    libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV % "test",
     macroSettings,
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -72,7 +72,7 @@ lazy val tests = (project in file("tests"))
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
-    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test"),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
