@@ -6,9 +6,8 @@ val scalaV = "2.13.10"
 val taglessV = "0.14.0"
 val akkaV = "2.6.19"
 val catsV = "2.9.0"
-val boopickleV = "1.3.1"
+val boopickleV = "1.4.0"
 val scodecBitsV = "1.1.36"
-val scodecCoreV = "1.11.10"
 val chillV = "0.10.0"
 val scalaTestV = "3.2.15"
 
@@ -25,16 +24,18 @@ lazy val macroAnnotationSettings = Seq(
     if (scalaVersion.value == scalaV) Seq("-Ymacro-annotations")
     else Seq("-Xfuture")
   },
-  libraryDependencies ++= {
-    if (scalaVersion.value == scalaV) Seq.empty
-    else Seq(compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full)))
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) | Some((2, 13)) => Seq.empty
+    case _ => Seq(compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full)))
   }
+    )
 )
 
 ThisBuild / scalaVersion := scalaV
 ThisBuild / organization := "com.dispalt.redux"
 
-ThisBuild / intellijPluginName := "tagless-redux-ijext"
+ThisBuild / intellijPluginName :=
+  "tagless-redux-ijext"
 ThisBuild / intellijBuild := "223.7571.58"
 
 lazy val root = (project in file("."))
@@ -45,7 +46,10 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies += "org.typelevel" %% "cats-tagless-macros" % taglessV % "test",
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq.empty
+      case _ => Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test")
+    }),
     macroSettings,
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -72,7 +76,10 @@ lazy val tests = (project in file("tests"))
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
-    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test"),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq.empty
+      case _ => Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test")
+    }),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -81,7 +88,7 @@ lazy val `encoder-macros` = (project in file("encoder-macros"))
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
-    libraryDependencies ++= Seq("com.twitter" %% "chill-bijection" % chillV),
+    libraryDependencies ++= Seq(("com.twitter" %% "chill-bijection" % chillV).cross(CrossVersion.for3Use2_13)),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -104,7 +111,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     libraryDependencies ++= Seq(
       "io.suzaku" %% "boopickle" % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-      "org.scodec" %% "scodec-core" % scodecCoreV
+      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.1.0")
     ),
     macroSettings
   )
@@ -200,7 +207,7 @@ lazy val buildSettings =
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV),
+  crossScalaVersions := Seq(scalaV, "3.2.2"),
   organization := "com.dispalt.redux",
   sonatypeProfileName := "com.dispalt",
   developers := List(
