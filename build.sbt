@@ -21,7 +21,7 @@ val deps = Seq(
 lazy val macroAnnotationSettings = Seq(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _))  => Seq("-Ykind-projector")
+    case Some((3, _))  => Seq.empty
     case Some((2, 13)) => Seq("-Ymacro-annotations")
     case _             => Seq("-Xfuture")
   }),
@@ -209,6 +209,10 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
     case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
+  }),
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Ykind-projector")
+    case _            => Seq.empty
   })
 )
 
