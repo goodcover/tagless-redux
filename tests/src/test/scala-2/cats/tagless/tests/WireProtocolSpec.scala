@@ -2,7 +2,7 @@ package cats.tagless.tests
 
 import cats.tagless.FunctorK
 import cats.tagless.tests.WireProtocolSpec.QuoteAlg
-import cats.{~>, Id}
+import cats.{Id, ~>}
 import com.dispalt.tagless.util.WireProtocol.{Decoder, Invocation}
 import com.dispalt.tagless.util.{PairE, WireProtocol}
 import com.dispalt.taglessKryo.Default.LocalInjector
