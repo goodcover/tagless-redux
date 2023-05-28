@@ -9,7 +9,7 @@ val catsV       = "2.9.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.36"
 val chillV      = "0.10.0"
-val scalaTestV  = "3.2.15"
+val scalaTestV  = "3.2.16"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0",
