@@ -34,9 +34,9 @@ lazy val macroAnnotationSettings = Seq(
 ThisBuild / scalaVersion := scalaV
 ThisBuild / organization := "com.dispalt.redux"
 
-ThisBuild / intellijPluginName :=
-  "tagless-redux-ijext"
-ThisBuild / intellijBuild := "223.7571.58"
+ThisBuild / intellijPluginName := "tagless-redux-ijext"
+// See https://www.jetbrains.com/intellij-repository/releases
+ThisBuild / intellijBuild := "231.8109.175"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -126,14 +126,13 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     name := "tagless-redux-ijext",
     intellijPluginName := name.value,
     intellijPlugins += "org.intellij.scala".toPlugin,
-    intellijBuild := "223.7571.58",
     packageMethod := PackagingMethod.Standalone(),
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version    = version.value
       xml.sinceBuild = (ThisBuild / intellijBuild).value
-      xml.untilBuild = "231.*"
+      xml.untilBuild = s"${(ThisBuild / intellijBuild).value.takeWhile(_ != '.')}.*"
     },
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
