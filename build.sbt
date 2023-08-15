@@ -5,7 +5,7 @@ import sbtrelease.CustomRelease
 val scalaV      = "2.13.11"
 val taglessV    = "0.15.0"
 val akkaV       = "2.6.19"
-val catsV       = "2.9.0"
+val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.36"
 val chillV      = "0.10.0"
