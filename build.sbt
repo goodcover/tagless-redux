@@ -12,7 +12,7 @@ val chillV      = "0.10.0"
 val scalaTestV  = "3.2.16"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0",
+  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0",
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
   "org.scalatest"     %% "scalatest"       % scalaTestV
