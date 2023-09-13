@@ -2,7 +2,7 @@ import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.CustomRelease
 
-val scalaV      = "2.13.11"
+val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
 val akkaV       = "2.6.19"
 val catsV       = "2.10.0"
