@@ -1,21 +1,21 @@
-package com.dispalt.taglessAkka
+package com.dispalt.taglessPekko
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import cats.Id
 import cats.tagless.autoFunctorK
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg, SafeAlg2}
+import com.dispalt.taglessPekko.pekkoEncoderTests.{Bar, Baz, SafeAlg, SafeAlg2}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.{matchers, Assertion}
 
 import scala.util.{Failure, Success}
 import com.typesafe.config.ConfigFactory
 
-class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
-  behavior of "akkaEncoder"
+class pekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
+  behavior of "pekkoEncoder"
 
   val cfg = ConfigFactory.parseString("""
-  akka.actor.allow-java-serialization=true
+  pekko.actor.allow-java-serialization=true
   """).withFallback(ConfigFactory.load())
 
   implicit val system: ActorSystem = ActorSystem(this.suiteName, cfg)
@@ -40,13 +40,13 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
     returnPayload match {
       case Failure(exception) => fail(exception)
       case Success(value) =>
-        value.second(value.first.run[Id](mf)) shouldBe AkkaCodecFactory.encode[String].apply(output)
+        value.second(value.first.run[Id](mf)) shouldBe PekkoCodecFactory.encode[String].apply(output)
     }
   }
 
-  private def roundTrip[A: AkkaImpl](value: A): Assertion = {
-    val enc = AkkaCodecFactory.encode[A].apply(value)
-    val dec = AkkaCodecFactory.decode[A].apply(enc)
+  private def roundTrip[A: PekkoImpl](value: A): Assertion = {
+    val enc = PekkoCodecFactory.encode[A].apply(value)
+    val dec = PekkoCodecFactory.decode[A].apply(enc)
     dec.get shouldBe value
 
   }
@@ -100,9 +100,9 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   }
 }
 
-object akkaEncoderTests {
+object pekkoEncoderTests {
 
-  @akkaEncoder
+  @pekkoEncoder
   @autoFunctorK
   trait SafeAlg[F[_]] {
     def test1(i: Int): F[String]
@@ -115,7 +115,7 @@ object akkaEncoderTests {
   case class Baz(i: Int) extends AnyVal
 
   //
-  @akkaEncoder
+  @pekkoEncoder
   @autoFunctorK
   trait SafeAlg2[T, E[_]] {
     def test2(s: String): E[(String, T)]

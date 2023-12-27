@@ -4,7 +4,7 @@ import sbtrelease.CustomRelease
 
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
-val akkaV       = "2.6.19"
+val pekkoV      = "1.0.2"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.38"
@@ -41,7 +41,7 @@ ThisBuild / intellijBuild := "231.8109.175"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-akka`, `encoder-boopickle`)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-pekko`, `encoder-boopickle`)
 
 lazy val macros = (project in file("macros"))
   .settings(
@@ -95,10 +95,10 @@ lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(libraryDependencies ++= deps, macroAnnotationSettings)
   .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
 
-lazy val `encoder-akka` = (project in file("encoder-akka"))
+lazy val `encoder-pekko` = (project in file("encoder-pekko"))
   .settings(
-    name := "tagless-redux-encoder-akka",
-    libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % akkaV),
+    name := "tagless-redux-encoder-pekko",
+    libraryDependencies ++= Seq("org.apache.pekko" %% "pekko-actor" % pekkoV),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -145,7 +145,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
            |<intellij-compat>
            |    <id>dispalt.taglessRedux</id>
            |    <name>Tagless Intellij Support</name>
-           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
+           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, pekkoEncoder injector for tagless programs</description>
            |    <version>${version.value}</version>
            |    <vendor>tagless-redux</vendor>
            |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
