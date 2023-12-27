@@ -1,3 +1,3 @@
-package com.dispalt.taglessAkka
+package com.dispalt.taglessPekko
 
 trait AnyValGenerator extends DefaultGenerator {}
