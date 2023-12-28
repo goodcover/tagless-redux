@@ -235,7 +235,7 @@ lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/
       commitReleaseVersion,
       tagRelease,
       releaseStepCommandAndRemaining("+ publishSigned"),
-      releaseStepCommandAndRemaining("sonatypeReleaseAll"),
+      releaseStepCommand("sonatypeBundleRelease"),
       setNextVersion,
       CustomRelease.commitNextVersion,
       pushChanges
