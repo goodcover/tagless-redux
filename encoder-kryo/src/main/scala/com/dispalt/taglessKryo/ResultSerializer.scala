@@ -1,10 +1,10 @@
 package com.dispalt.taglessKryo
 
 import com.dispalt.tagless.util.Result
-import com.esotericsoftware.kryo.KryoException
-import com.twitter.chill.{Input, KSerializer, Kryo, Output}
+import com.esotericsoftware.kryo.io.{Input, Output}
+import com.esotericsoftware.kryo.{Kryo, KryoException, Serializer}
 
-class ResultSerializer[A] extends KSerializer[Result[A]] {
+class ResultSerializer[A] extends Serializer[Result[A]] {
 
   def write(kser: Kryo, out: Output, r: Result[A]): Unit = {
     //Write the string
