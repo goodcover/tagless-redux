@@ -11,6 +11,7 @@ val scodecBitsV = "1.1.31"
 val scodecCoreV = "1.11.10"
 val chillV      = "0.10.0"
 val scalaTestV  = "3.2.14"
+val akkaKryoV   = "2.5.2"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2",
@@ -52,7 +53,10 @@ lazy val macros = (project in file("macros"))
       rootFolder.mkdirs()
       val compatFile = rootFolder / "intellij-compat.json"
 
-      IO.write(compatFile, s"""{ "artifact": "${(ThisBuild / organization).value} % tagless-redux-ijext_2.13 % ${version.value}" }""")
+      IO.write(
+        compatFile,
+        s"""{ "artifact": "${(ThisBuild / organization).value} % tagless-redux-ijext_2.13 % ${version.value}" }"""
+      )
 
       Seq(compatFile)
     }
@@ -78,7 +82,10 @@ lazy val `encoder-macros` = (project in file("encoder-macros"))
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
-    libraryDependencies ++= Seq("com.twitter" %% "chill-bijection" % chillV),
+    libraryDependencies ++= Seq(
+      "com.twitter" %% "chill-bijection"                      % chillV,
+      "io.altoo"    %% "akka-kryo-serialization-pekko-compat" % akkaKryoV
+    ),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
