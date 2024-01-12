@@ -5,6 +5,7 @@ import sbtrelease.CustomRelease
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
 val pekkoV      = "1.0.2"
+val akkaV       = "2.6.21"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.38"
@@ -99,6 +100,16 @@ lazy val `encoder-pekko` = (project in file("encoder-pekko"))
   .settings(
     name := "tagless-redux-encoder-pekko",
     libraryDependencies ++= Seq("org.apache.pekko" %% "pekko-actor" % pekkoV),
+    macroSettings
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
+  .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
+
+lazy val `encoder-akka` = (project in file("encoder-akka"))
+  .settings(
+    name := "tagless-redux-encoder-akka",
+    libraryDependencies ++= Seq("com.typesafe.akka" %% "akka-actor" % akkaV),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
