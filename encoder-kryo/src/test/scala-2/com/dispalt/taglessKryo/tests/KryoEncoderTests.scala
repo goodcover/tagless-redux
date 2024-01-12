@@ -78,9 +78,9 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
     fooClient.id.toEither shouldBe Right(uuid)
   }
 
-  def roundTrip[A: KryoImpl](a: A): Assertion = {
-    val ab = KryoCodec.encode[A].apply(a)
-    val d  = KryoCodec.decode[A].apply(ab)
+  def roundTrip[A](a: A)(implicit ki: KryoImpl[A]): Assertion = {
+    val ab = KryoCodec.encode[A](ki).apply(a)
+    val d  = KryoCodec.decode[A](ki).apply(ab)
     d.get shouldBe a
   }
 

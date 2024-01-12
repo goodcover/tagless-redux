@@ -1,7 +1,7 @@
 package com.dispalt
 
-import com.twitter.bijection.Injection
+import io.altoo.serialization.kryo.scala.ScalaKryoSerializer
 
 package object taglessKryo {
-  type KryoImpl[A] = Injection[A, Array[Byte]]
+  type KryoImpl[A] = ScalaKryoSerializer
 }
