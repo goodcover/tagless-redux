@@ -1,6 +1,7 @@
-import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
-import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleaseStateTransformations.*
 import sbtrelease.CustomRelease
+
+import java.net.URI
 
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
@@ -200,6 +201,8 @@ lazy val buildSettings =
       "-deprecation",
       "-encoding",
       "UTF-8",
+      "-release",
+      "11",
       "-unchecked",
       "-Xlint",
       //    "-Yno-adapted-args",
@@ -221,7 +224,7 @@ lazy val commonSettings = Seq(
   organization := "com.dispalt.redux",
   sonatypeProfileName := "com.dispalt",
   developers := List(
-    Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
+    Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", URI.create("http://dispalt.com").toURL)
   ),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
