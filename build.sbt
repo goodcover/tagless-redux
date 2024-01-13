@@ -5,6 +5,7 @@ import sbtrelease.CustomRelease
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
 val pekkoV      = "1.0.2"
+val altooV      = "1.1.0"
 val akkaV       = "2.6.21"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
@@ -37,7 +38,7 @@ ThisBuild / organization := "com.dispalt.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild := "231.8109.175"
+ThisBuild / intellijBuild := "233.13135.103"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -89,7 +90,7 @@ lazy val `encoder-macros` = (project in file("encoder-macros"))
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
-    libraryDependencies ++= Seq(("com.twitter" %% "chill-bijection" % chillV).cross(CrossVersion.for3Use2_13)),
+    libraryDependencies ++= Seq(("io.altoo" %% "scala-kryo-serialization" % altooV).cross(CrossVersion.for3Use2_13)),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -159,7 +160,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
            |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, pekkoEncoder injector for tagless programs</description>
            |    <version>${version.value}</version>
            |    <vendor>tagless-redux</vendor>
-           |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
+           |    <ideaVersion since-build="2020.3.0" until-build="2030.1.0">
            |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
            |                   implementation="com.dispalt.tagless.FunctorKInjector">
            |            <name>Tagless macro support</name>

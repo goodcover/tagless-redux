@@ -2,7 +2,7 @@ package cats.tagless.tests
 
 import cats.tagless.FunctorK
 import cats.tagless.tests.WireProtocolSpec.QuoteAlg
-import cats.{Id, ~>}
+import cats.{~>, Id}
 import com.dispalt.tagless.util.WireProtocol.{Decoder, Invocation}
 import com.dispalt.tagless.util.{PairE, WireProtocol}
 import com.dispalt.taglessKryo.Default.LocalInjector
@@ -81,7 +81,7 @@ object WireProtocolSpec {
           new Decoder[PairE[Invocation[QuoteAlg, *], WireProtocol.Encoder]] {
             override def apply(ab: Array[Byte]): Try[PairE[Invocation[QuoteAlg, *], WireProtocol.Encoder]] = {
               Try {
-                val (fn, rest) = LocalInjector.invert(ab).map(_.asInstanceOf[Tuple2[String, Any]]).get
+                val (fn, rest) = LocalInjector.deserialize[Tuple2[String, Any]](ab).get
                 fn match {
                   case "complete" =>
                     val work = rest.asInstanceOf[Tuple1[Boolean]]
@@ -112,13 +112,13 @@ object WireProtocolSpec {
         override def encoder: QuoteAlg[WireProtocol.Encoded] = new QuoteAlg[WireProtocol.Encoded] {
 
           override def complete(work: Boolean): (Array[Byte], Decoder[Boolean]) = {
-            (LocalInjector.apply(("complete", Tuple1(work))), new Decoder[Boolean] {
+            (LocalInjector.serialize(("complete", Tuple1(work))).get, new Decoder[Boolean] {
               override def apply(ab: Array[Byte]): Try[Boolean] = Try(ab(0) == 1)
             })
           }
 
           override def inc: (Array[Byte], Decoder[Int]) = {
-            (LocalInjector.apply(("inc", ())), new Decoder[Int] {
+            (LocalInjector.serialize(("inc", ())).get, new Decoder[Int] {
               override def apply(ab: Array[Byte]): Try[Int] = Try(ByteBuffer.wrap(ab).getInt())
             })
           }
