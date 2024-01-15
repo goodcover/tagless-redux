@@ -12,7 +12,7 @@ class ResultSerializer[A] extends Serializer[Result[A]] {
     kser.writeClassAndObject(out, r.a.asInstanceOf[AnyRef])
   }
 
-  def read(kser: Kryo, in: Input, cls: Class[Result[A]]): Result[A] = {
+  def read(kser: Kryo, in: Input, cls: Class[_ <: Result[A]]): Result[A] = {
     try {
       val method = in.readString()
       val result = kser.readClassAndObject(in).asInstanceOf[A]

@@ -2,7 +2,7 @@ package com.dispalt.taglessKryo
 
 import com.dispalt.tagless.EncoderGeneratorMacro
 
-import scala.annotation.{compileTimeOnly, StaticAnnotation}
+import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.reflect.macros.whitebox
 
 @compileTimeOnly("Cannot expand @kryoEncoder")
