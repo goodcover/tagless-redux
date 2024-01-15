@@ -43,7 +43,7 @@ ThisBuild / intellijBuild := "233.13135.103"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-pekko`, `encoder-boopickle`)
+  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-pekko`, `encoder-boopickle`, `encoder-akka`)
 
 lazy val macros = (project in file("macros"))
   .settings(
