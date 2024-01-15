@@ -6,12 +6,11 @@ import java.net.URI
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
 val pekkoV      = "1.0.2"
-val altooV      = "1.1.0"
+val altooV      = "1.0.2"
 val akkaV       = "2.6.21"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.38"
-val chillV      = "0.10.0"
 val scalaTestV  = "3.2.17"
 
 val deps = Seq(
