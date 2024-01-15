@@ -6,7 +6,7 @@ import java.net.URI
 val scalaV      = "2.13.12"
 val taglessV    = "0.15.0"
 val pekkoV      = "1.0.2"
-val altooV      = "1.0.2"
+val altooV      = "1.1.0"
 val akkaV       = "2.6.21"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
@@ -43,7 +43,16 @@ ThisBuild / intellijBuild := "233.13135.103"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-pekko`, `encoder-boopickle`, `encoder-akka`)
+  .aggregate(
+    macros,
+    tests,
+    `encoder-macros`,
+    `encoder-kryo`,
+    `intellij-ijext`,
+    `encoder-pekko`,
+    `encoder-boopickle`,
+    `encoder-akka`
+  )
 
 lazy val macros = (project in file("macros"))
   .settings(
