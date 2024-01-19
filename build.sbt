@@ -14,10 +14,11 @@ val scodecBitsV = "1.1.38"
 val scalaTestV  = "3.2.17"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0",
+  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0" % Test,
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
-  "org.scalatest"     %% "scalatest"       % scalaTestV
+  "org.scala-lang"    % "scala-reflect"    % scalaV,
+  "org.scalatest"     %% "scalatest"       % scalaTestV % Test
 )
 
 lazy val macroAnnotationSettings = Seq(
@@ -43,7 +44,16 @@ ThisBuild / intellijBuild := "233.13135.103"
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-pekko`, `encoder-boopickle`, `encoder-akka`)
+  .aggregate(
+    macros,
+    tests,
+    `encoder-macros`,
+    `encoder-kryo`,
+    `intellij-ijext`,
+    `encoder-pekko`,
+    `encoder-boopickle`,
+    `encoder-akka`
+  )
 
 lazy val macros = (project in file("macros"))
   .settings(
