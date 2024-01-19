@@ -17,6 +17,7 @@ val deps = Seq(
   "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0" % Test,
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
+  "org.scala-lang"    % "scala-reflect"    % scalaV,
   "org.scalatest"     %% "scalatest"       % scalaTestV % Test
 )
 
