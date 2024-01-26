@@ -24,7 +24,7 @@ val deps = Seq(
 lazy val macroAnnotationSettings = Seq(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _))  => Seq("-Ykind-projector")
+    case Some((3, _))  => Seq.empty
     case Some((2, 13)) => Seq("-Ymacro-annotations")
     case _             => Seq("-Xfuture")
   }),
@@ -58,10 +58,7 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq.empty
-      case _            => Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test")
-    }),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test"),
     macroSettings,
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -88,10 +85,7 @@ lazy val tests = (project in file("tests"))
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) => Seq.empty
-      case _            => Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test")
-    }),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test"),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -238,6 +232,10 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
     case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
+  }),
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Ykind-projector")
+    case _            => Seq.empty
   })
 )
 
