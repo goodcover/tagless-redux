@@ -4,7 +4,7 @@ import sbtrelease.CustomRelease
 import java.net.URI
 
 val scalaV      = "2.13.12"
-val taglessV    = "0.15.0"
+val taglessV    = "0.15.0-65-bedf8dd-SNAPSHOT"
 val pekkoV      = "1.0.2"
 val altooV      = "1.0.2"
 val akkaV       = "2.6.21"
@@ -24,7 +24,7 @@ val deps = Seq(
 lazy val macroAnnotationSettings = Seq(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _))  => Seq.empty
+    case Some((3, _))  => Seq("-experimental")
     case Some((2, 13)) => Seq("-Ymacro-annotations")
     case _             => Seq("-Xfuture")
   }),
@@ -223,7 +223,7 @@ lazy val buildSettings =
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV, "3.3.1"),
+  crossScalaVersions := Seq(scalaV, "3.4.0-RC3"),
   organization := "com.dispalt.redux",
   sonatypeProfileName := "com.dispalt",
   developers := List(
