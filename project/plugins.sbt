@@ -1,5 +1,4 @@
-addSbtPlugin("org.jetbrains"  % "sbt-idea-plugin" % "3.19.4")
-addSbtPlugin("com.github.sbt" % "sbt-release"     % "1.1.0")
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"    % "3.9.18")
-addSbtPlugin("com.github.sbt" % "sbt-release"     % "1.1.0")
+addSbtPlugin("org.jetbrains"  % "sbt-idea-plugin" % "3.23.2")
+addSbtPlugin("com.github.sbt" % "sbt-release"     % "1.4.0")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"    % "3.10.0")
 addSbtPlugin("com.github.sbt" % "sbt-pgp"         % "2.1.2")

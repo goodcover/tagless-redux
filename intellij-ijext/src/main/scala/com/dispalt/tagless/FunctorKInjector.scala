@@ -16,7 +16,7 @@ class FunctorKInjector extends SyntheticMembersInjector {
             mkFinalAlg(aClass) ++
               mkFunctorK(aClass) ++
               mkWireProtocolKryo(aClass) ++
-              mkWireProtocolAkka(aClass) ++
+              mkWireProtocolPekko(aClass) ++
               mkInstrument(aClass)
           case _ => Seq.empty
         }
@@ -30,7 +30,7 @@ object FunctorKInjector {
   private[this] val instrumentAnn  = "cats.tagless.autoInstrument"
   private[this] val finalAlgAnn    = "cats.tagless.finalAlg"
   private[this] val kryoEncoderAnn = "com.dispalt.taglessKryo.kryoEncoder"
-  private[this] val akkaEncoderAnn = "com.dispalt.taglessAkka.akkaEncoder"
+  private[this] val pekkoEncoderAnn = "com.dispalt.taglessPekko.pekkoEncoder"
 
   private def isAutoFunctorK(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(autoFuncAnn) != null
@@ -44,8 +44,8 @@ object FunctorKInjector {
   private def isFinalAlg(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(finalAlgAnn) != null
 
-  private def isAkkaEncoder(source: ScTypeDefinition): Boolean =
-    source.findAnnotationNoAliases(akkaEncoderAnn) != null
+  private def isPekkoEncoder(source: ScTypeDefinition): Boolean =
+    source.findAnnotationNoAliases(pekkoEncoderAnn) != null
 
   /** (tpNames, returnType) */
   private def typeParams(clazz: ScTypeDefinition) = {
@@ -126,12 +126,12 @@ object FunctorKInjector {
     Seq.empty
   }
 
-  private def mkWireProtocolAkka(clazz: ScTypeDefinition) = if (isAkkaEncoder(clazz)) {
+  private def mkWireProtocolPekko(clazz: ScTypeDefinition) = if (isPekkoEncoder(clazz)) {
 
     typeParams(clazz).toSeq.flatMap {
       case (tpName, tpText) =>
         Seq(
-          s"implicit def taglessWireProtocol${clazz.name}${tpName}(implicit system: _root_.akka.actor.ActorSystem): _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
+          s"implicit def taglessWireProtocol${clazz.name}${tpName}(implicit system: _root_.org.apache.pekko.actor.ActorSystem): _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
         )
     }
 

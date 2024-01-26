@@ -1,21 +1,24 @@
-import sbtrelease.ReleasePlugin.autoImport.{ReleaseStep, _}
-import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleaseStateTransformations.*
 import sbtrelease.CustomRelease
 
-val scalaV      = "2.13.10"
-val taglessV    = "0.14.0-207-862736d-SNAPSHOT"
-val akkaV       = "2.6.19"
-val catsV       = "2.9.0"
+import java.net.URI
+
+val scalaV      = "2.13.12"
+val taglessV    = "0.15.0"
+val pekkoV      = "1.0.2"
+val altooV      = "1.0.2"
+val akkaV       = "2.6.21"
+val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
-val scodecBitsV = "1.1.36"
-val chillV      = "0.10.0"
-val scalaTestV  = "3.2.15"
+val scodecBitsV = "1.1.38"
+val scalaTestV  = "3.2.17"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.14.0",
+  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0" % Test,
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
-  "org.scalatest"     %% "scalatest"       % scalaTestV
+  "org.scala-lang"    % "scala-reflect"    % scalaV,
+  "org.scalatest"     %% "scalatest"       % scalaTestV % Test
 )
 
 lazy val macroAnnotationSettings = Seq(
@@ -34,14 +37,23 @@ lazy val macroAnnotationSettings = Seq(
 ThisBuild / scalaVersion := scalaV
 ThisBuild / organization := "com.dispalt.redux"
 
-ThisBuild / intellijPluginName :=
-  "tagless-redux-ijext"
-ThisBuild / intellijBuild := "223.7571.58"
+ThisBuild / intellijPluginName := "tagless-redux-ijext"
+// See https://www.jetbrains.com/intellij-repository/releases
+ThisBuild / intellijBuild := "233.13135.103"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
   .settings(commonSettings ++ buildSettings ++ publishSettings)
-  .aggregate(macros, tests, `encoder-macros`, `encoder-kryo`, `intellij-ijext`, `encoder-akka`, `encoder-boopickle`)
+  .aggregate(
+    macros,
+    tests,
+    `encoder-macros`,
+    `encoder-kryo`,
+    `intellij-ijext`,
+    `encoder-pekko`,
+    `encoder-boopickle`,
+    `encoder-akka`
+  )
 
 lazy val macros = (project in file("macros"))
   .settings(
@@ -82,7 +94,17 @@ lazy val `encoder-macros` = (project in file("encoder-macros"))
 lazy val `encoder-kryo` = (project in file("encoder-kryo"))
   .settings(
     name := "tagless-redux-encoder-kryo",
-    libraryDependencies ++= Seq(("com.twitter" %% "chill-bijection" % chillV).cross(CrossVersion.for3Use2_13)),
+    libraryDependencies ++= Seq(("io.altoo" %% "scala-kryo-serialization" % altooV).cross(CrossVersion.for3Use2_13)),
+    macroSettings
+  )
+  .settings(commonSettings ++ buildSettings ++ publishSettings)
+  .settings(libraryDependencies ++= deps, macroAnnotationSettings)
+  .dependsOn(`encoder-macros` % "test->test;compile->compile", macros % "test->test")
+
+lazy val `encoder-pekko` = (project in file("encoder-pekko"))
+  .settings(
+    name := "tagless-redux-encoder-pekko",
+    libraryDependencies ++= Seq("org.apache.pekko" %% "pekko-actor" % pekkoV),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)
@@ -105,7 +127,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     libraryDependencies ++= Seq(
       "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.1.0")
+      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.2.2")
     ),
     macroSettings
   )
@@ -120,14 +142,13 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
     name := "tagless-redux-ijext",
     intellijPluginName := name.value,
     intellijPlugins += "org.intellij.scala".toPlugin,
-    intellijBuild := "223.7571.58",
     packageMethod := PackagingMethod.Standalone(),
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scalaV),
     patchPluginXml := pluginXmlOptions { xml =>
       xml.version    = version.value
       xml.sinceBuild = (ThisBuild / intellijBuild).value
-      xml.untilBuild = "231.*"
+      xml.untilBuild = s"${(ThisBuild / intellijBuild).value.takeWhile(_ != '.')}.*"
     },
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -140,10 +161,10 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
            |<intellij-compat>
            |    <id>dispalt.taglessRedux</id>
            |    <name>Tagless Intellij Support</name>
-           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, akkaEncoder injector for tagless programs</description>
+           |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, pekkoEncoder injector for tagless programs</description>
            |    <version>${version.value}</version>
            |    <vendor>tagless-redux</vendor>
-           |    <ideaVersion since-build="2020.3.0" until-build="2023.1.0">
+           |    <ideaVersion since-build="2020.3.0" until-build="2030.1.0">
            |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
            |                   implementation="com.dispalt.tagless.FunctorKInjector">
            |            <name>Tagless macro support</name>
@@ -183,6 +204,8 @@ lazy val buildSettings =
       "-deprecation",
       "-encoding",
       "UTF-8",
+      "-release",
+      "11",
       "-unchecked",
       "-Xlint",
       //    "-Yno-adapted-args",
@@ -200,11 +223,11 @@ lazy val buildSettings =
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV, "3.2.2"),
+  crossScalaVersions := Seq(scalaV, "3.3.1"),
   organization := "com.dispalt.redux",
   sonatypeProfileName := "com.dispalt",
   developers := List(
-    Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", new java.net.URL("http://dispalt.com"))
+    Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", URI.create("http://dispalt.com").toURL)
   ),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
@@ -216,11 +239,10 @@ lazy val commonSettings = Seq(
   })
 )
 
-lazy val mavenSettings: Seq[Setting[_]] = Seq(publishMavenStyle := true, publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-})
+lazy val mavenSettings: Seq[Setting[_]] = Seq( //
+  publishMavenStyle := true,
+  publishTo := sonatypePublishToBundle.value
+)
 
 lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/ Seq(
   releaseProcess :=
@@ -234,7 +256,7 @@ lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/
       commitReleaseVersion,
       tagRelease,
       releaseStepCommandAndRemaining("+ publishSigned"),
-      releaseStepCommandAndRemaining("sonatypeReleaseAll"),
+      releaseStepCommand("sonatypeBundleRelease"),
       setNextVersion,
       CustomRelease.commitNextVersion,
       pushChanges
