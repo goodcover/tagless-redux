@@ -4,7 +4,7 @@ import sbtrelease.CustomRelease
 import java.net.URI
 
 val scalaV      = "2.13.12"
-val taglessV    = "0.15.0"
+val taglessV    = "0.16.0"
 val pekkoV      = "1.0.2"
 val altooV      = "1.0.2"
 val akkaV       = "2.6.21"
