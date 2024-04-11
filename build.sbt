@@ -11,10 +11,10 @@ val akkaV       = "2.6.21"
 val catsV       = "2.10.0"
 val boopickleV  = "1.4.0"
 val scodecBitsV = "1.1.38"
-val scalaTestV  = "3.2.17"
+val scalaTestV  = "3.2.18"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.17.0" % Test,
+  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
   "org.scala-lang"    % "scala-reflect"    % scalaV,
@@ -223,7 +223,7 @@ lazy val buildSettings =
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV, "3.4.0-RC3"),
+  crossScalaVersions := Seq(scalaV, "3.4.1"),
   organization := "com.dispalt.redux",
   sonatypeProfileName := "com.dispalt",
   developers := List(
@@ -231,7 +231,7 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq.empty
-    case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.2").cross(CrossVersion.full)))
+    case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.3").cross(CrossVersion.full)))
   }),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _)) => Seq("-Ykind-projector", "-experimental")
