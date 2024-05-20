@@ -127,7 +127,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     libraryDependencies ++= Seq(
       "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.2.2")
+      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.3.0")
     ),
     macroSettings
   )
