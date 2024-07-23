@@ -9,7 +9,7 @@ val pekkoV      = "1.0.2"
 val altooV      = "1.2.0"
 val akkaV       = "2.6.21"
 val catsV       = "2.12.0"
-val boopickleV  = "1.4.0"
+val boopickleV  = "1.5.0"
 val scodecBitsV = "1.2.0"
 val scalaTestV  = "3.2.19"
 
