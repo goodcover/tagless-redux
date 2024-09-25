@@ -10,7 +10,7 @@ val altooV      = "1.2.0"
 val akkaV       = "2.6.21"
 val catsV       = "2.12.0"
 val boopickleV  = "1.5.0"
-val scodecBitsV = "1.2.0"
+val scodecBitsV = "1.2.1"
 val scalaTestV  = "3.2.19"
 
 val deps = Seq(
