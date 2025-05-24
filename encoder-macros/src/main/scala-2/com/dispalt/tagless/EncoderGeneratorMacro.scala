@@ -1,6 +1,6 @@
 package com.dispalt.tagless
 
-import com.dispalt.tagless.util.CodecFactory
+import com.dispalt.tagless.util.{CodecFactory, WireProtocol}
 
 import scala.reflect.macros.whitebox
 
@@ -9,6 +9,7 @@ abstract class EncoderGeneratorMacro {
   val c: whitebox.Context
 
   import c.universe._
+  import c.internal._
 
   val pkg      = q"_root_.com.dispalt.tagless.util"
   val wireP    = q"$pkg.WireProtocol"

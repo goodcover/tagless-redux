@@ -11,7 +11,6 @@ object Interpreters {
 
     override def divide2: Try[Float] = Try(1.0f)
 
-    override def divide3: Float = 0.0f
   }
 
 }

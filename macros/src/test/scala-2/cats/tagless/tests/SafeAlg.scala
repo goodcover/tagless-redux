@@ -9,7 +9,7 @@ trait SafeAlg[F[_]] {
   def parseInt(i: String): F[Int]
   def divide(dividend: Float, divisor: Float): F[Float]
   def divide2: F[Float]
-  def divide3: Float
+  final def divide3: Float = 0.2f
 }
 
 object SafeAlg {

@@ -2,7 +2,7 @@ package com.dispalt.taglessPekko
 
 import com.dispalt.tagless.EncoderGeneratorMacro
 
-import scala.annotation.{StaticAnnotation, compileTimeOnly}
+import scala.annotation.{compileTimeOnly, StaticAnnotation}
 import scala.reflect.macros.whitebox
 
 @compileTimeOnly("Cannot expand @pekkoEncoder")

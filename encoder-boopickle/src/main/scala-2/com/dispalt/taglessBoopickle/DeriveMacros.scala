@@ -34,15 +34,17 @@ class DeriveMacros(val c: blackbox.Context) {
     )
   }
 
-  /** Temporarily refresh type parameter names, type-check the `tree` and restore the original names.
+  /** Temporarily refresh type parameter names, type-check the `tree` and restore the original
+    * names.
     *
     * The purpose is to avoid warnings about type parameter shadowing, which can be problematic when
-    * `-Xfatal-warnings` is enabled. We know the warnings are harmless because we deal with types directly.
-    * Unfortunately `c.typecheck(tree, silent = true)` does not suppress warnings.
+    * `-Xfatal-warnings` is enabled. We know the warnings are harmless because we deal with types
+    * directly. Unfortunately `c.typecheck(tree, silent = true)` does not suppress warnings.
     */
   def typeCheckWithFreshTypeParams(tree: Tree): Tree = {
     val typeParams = tree.collect {
-      case method: DefDef => method.tparams.map(_.symbol)
+      case method: DefDef =>
+        method.tparams.map(_.symbol)
     }.flatten
 
     val originalNames = for (tp <- typeParams) yield {
@@ -84,15 +86,14 @@ class DeriveMacros(val c: blackbox.Context) {
         Method(method, typeParams, paramLists, signature.finalResultType, q"_root_.scala.Predef.???")
       }
 
-  /** Type-check a definition of type `instance` with stubbed methods to gain more type information. */
+  /** Type-check a definition of type `instance` with stubbed methods to gain more type information.
+    */
   def declare(instance: Type): Tree = {
     val stubs =
       overridableMethodsOf(instance).map(_.definition)
 
-    typeCheckWithFreshTypeParams(q"new $instance { ..$stubs }") match {
-      case Block(List(declaration), _) => declaration
-      case _                           => c.abort(c.enclosingPosition, "Expected a block")
-    }
+    val Block(List(declaration), _) = typeCheckWithFreshTypeParams(q"new $instance { ..$stubs }")
+    declaration
   }
 
   /** Implement a possibly refined `algebra` with the provided `members`. */
@@ -112,35 +113,27 @@ class DeriveMacros(val c: blackbox.Context) {
     }
   }
 
-  /** Create a new instance of `typeClass` for `algebra`.
-    * `rhs` should define a mapping for each method (by name) to an implementation function based on type signature.
+  /** Create a new instance of `typeClass` for `algebra`. `rhs` should define a mapping for each
+    * method (by name) to an implementation function based on type signature.
     */
   def instantiate(typeClass: TypeSymbol, params: Type*)(rhs: (String, Type => Tree)*): Tree = {
-    val impl = rhs.toMap
-    val TcA  = appliedType(typeClass, params: _*)
-    declare(TcA) match {
-      case declaration @ ClassDef(_, _, _, Template(parents, self, members)) =>
-        val implementations =
-          for (member <- members)
-            yield member match {
-              case dd: DefDef =>
-                val method = member.symbol.asMethod
-                impl
-                  .get(method.name.toString)
-                  .fold(dd)(f => defDef(method, f(method.typeSignatureIn(TcA))))
-              case other => other
-            }
-
-        val definition =
-          classDef(declaration.symbol, Template(parents, self, implementations))
-        val result = typeCheckWithFreshTypeParams(q"{ $definition; new ${declaration.symbol} }")
-
-        if (System.getProperty("tagless.macro.debug", "false") == "true") {
-          println(show(result))
+    val impl                                                              = rhs.toMap
+    val TcA                                                               = appliedType(typeClass, params: _*)
+    val declaration @ ClassDef(_, _, _, Template(parents, self, members)) = declare(TcA)
+    val implementations =
+      for (member <- members)
+        yield member match {
+          case dd: DefDef =>
+            val method = member.symbol.asMethod
+            impl
+              .get(method.name.toString)
+              .fold(dd)(f => defDef(method, f(method.typeSignatureIn(TcA))))
+          case other => other
         }
-        result
-      case _ => c.abort(c.enclosingPosition, "Expected a class definition")
-    }
+
+    val definition =
+      classDef(declaration.symbol, Template(parents, self, implementations))
+    typeCheckWithFreshTypeParams(q"{ $definition; new ${declaration.symbol} }")
   }
 
   def encoder(algebra: Type): (String, Type => Tree) =
@@ -148,6 +141,9 @@ class DeriveMacros(val c: blackbox.Context) {
       val methods = overridableMethodsOf(algebra).map {
         case method @ Method(name, _, _, TypeRef(_, _, outParams), _) =>
           val args = method.argLists((pn, _) => Ident(pn)).flatten
+          if (outParams.isEmpty)
+            c.abort(c.enclosingPosition, "Method's return type is not a type parameter, you must mark it final")
+
           val body =
             q"""(_root_.boopickle.Default.Pickle.intoBytes((${name.name.toString}, ..$args)).array()
                 ,_root_.com.dispalt.taglessBoopickle.BoopickleCodec.decoder[${outParams.last}]
@@ -156,7 +152,9 @@ class DeriveMacros(val c: blackbox.Context) {
           method
             .copy(rt = appliedType(symbolOf[Encoded[Any]].toType, outParams.last), body = body)
             .definition
-        case _ => c.abort(c.enclosingPosition, "Expected a method")
+
+        case _ =>
+          c.abort(c.enclosingPosition, "Method was expected")
       }
       implement(appliedType(algebra, symbolOf[Encoded[Any]].toTypeConstructor), methods)
     }
@@ -189,7 +187,9 @@ class DeriveMacros(val c: blackbox.Context) {
               val members = toStringImpl :: overridableMethodsOf(Invocation).map {
                 case m @ Method(_, _, List(List(ValDef(_, ps, _, _))), _, _) =>
                   m.copy(body = runImplementation(ps)).definition
-                case _ => c.abort(c.enclosingPosition, "Expected a method")
+
+                case _ =>
+                  c.abort(c.enclosingPosition, "Method was expected")
               }.toList
 
               val invocation = implement(Invocation, members)
@@ -211,15 +211,16 @@ class DeriveMacros(val c: blackbox.Context) {
                   """
 
               q"if (hint == ${name.name.toString}) $pair else $acc"
-            case _ => c.abort(c.enclosingPosition, "Expected method")
+
+            case _ =>
+              c.abort(c.enclosingPosition, "Method was expected")
           }
 
       val out = q"""
            new ${t.finalResultType} {
              final override def apply(bytes: Array[Byte]) =
-              scala.util.Try {
-
-                val state = _root_.boopickle.UnpickleState(_root_.java.nio.ByteBuffer.wrap(bytes))
+             _root_.scala.util.Try {
+                val state = _root_.boopickle.UnpickleState(_root_.java.nio.ByteBuffer.wrap(bytes).order(_root_.java.nio.ByteOrder.LITTLE_ENDIAN))
                 val hint = state.unpickle[String]
                 $ifs
              }

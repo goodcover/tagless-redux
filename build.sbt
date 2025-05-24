@@ -3,7 +3,7 @@ import sbtrelease.CustomRelease
 
 import java.net.URI
 
-val scalaV      = "2.13.15"
+val scalaV      = "2.13.16"
 val taglessV    = "0.16.3"
 val pekkoV      = "1.0.3"
 val altooV      = "1.2.0"
@@ -58,7 +58,15 @@ lazy val root = (project in file("."))
 lazy val macros = (project in file("macros"))
   .settings(
     name := "tagless-redux-macros",
-    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test"),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) =>
+          Seq("org.typelevel" %% "cats-tagless-macros" % taglessV % "test")
+        case _ =>
+          Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test")
+
+      }
+    },
     macroSettings,
     Compile / resourceGenerators += Def.task {
       val rootFolder = (Compile / resourceManaged).value / "META-INF"
@@ -164,7 +172,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
            |    <description>Provides an autoFunctorK, finalAlg, kryoEncoder, pekkoEncoder injector for tagless programs</description>
            |    <version>${version.value}</version>
            |    <vendor>tagless-redux</vendor>
-           |    <ideaVersion since-build="2020.3.0" until-build="2030.1.0">
+           |    <ideaVersion since-build="2020.3.0">
            |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
            |                   implementation="com.dispalt.tagless.FunctorKInjector">
            |            <name>Tagless macro support</name>
@@ -197,9 +205,9 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
 
 lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(publish / skip := true)
 
-lazy val buildSettings =
-  /*sharedBuildSettings(gh, libs) ++*/ Seq(
-    scalacOptions ++= Seq(
+lazy val buildSettings = scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, 13)) =>
+    Seq(
       "-feature",
       "-deprecation",
       "-encoding",
@@ -218,7 +226,9 @@ lazy val buildSettings =
       "-language:higherKinds", // Allow higher-kinded types
       "-language:implicitConversions" // Allow definition of implicit functions called views
     )
-  )
+
+  case _ => Seq.empty
+})
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,

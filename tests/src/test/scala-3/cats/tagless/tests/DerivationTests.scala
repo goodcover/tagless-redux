@@ -1,7 +1,7 @@
 package cats.tagless.tests
 
 import cats.tagless.FunctorK
-import cats.tagless.macros.Derive
+import cats.tagless.Derive
 //import cats.tagless.FunctorK
 
 trait Fooo[F[_]] {
