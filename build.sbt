@@ -3,12 +3,12 @@ import sbtrelease.CustomRelease
 
 import java.net.URI
 
-val scalaV      = "2.13.16"
-val taglessV    = "0.16.2"
+val scalaV      = "2.13.15"
+val taglessV    = "0.16.3"
 val pekkoV      = "1.0.3"
 val altooV      = "1.2.0"
 val akkaV       = "2.6.21"
-val catsV       = "2.12.0"
+val catsV       = "2.13.0"
 val boopickleV  = "1.5.0"
 val scodecBitsV = "1.2.1"
 val scalaTestV  = "3.2.19"
@@ -127,7 +127,7 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     libraryDependencies ++= Seq(
       "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.9" else "2.3.2")
+      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.11" else "2.3.2")
     ),
     macroSettings
   )
