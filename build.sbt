@@ -39,7 +39,7 @@ ThisBuild / organization := "com.dispalt.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild := "233.13135.103"
+ThisBuild / intellijBuild := "251.25410.153"
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
