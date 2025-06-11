@@ -6,7 +6,7 @@ import java.net.URI
 val scalaV      = "2.13.16"
 val taglessV    = "0.16.3"
 val pekkoV      = "1.0.3"
-val altooV      = "1.2.0"
+val altooV      = "1.2.1"
 val akkaV       = "2.6.21"
 val catsV       = "2.13.0"
 val boopickleV  = "1.5.0"
