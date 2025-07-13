@@ -1,5 +1,6 @@
 package com.dispalt.taglessPekko
 
+import com.dispalt.tagless.pekko.AnyValGenerator
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.serialization.SerializationExtension
 
@@ -33,9 +34,8 @@ object PekkoImpl extends AnyValGenerator {
         enc(bb, a).array()
       }
 
-      override def decode(a: Array[Byte]) = {
+      override def decode(a: Array[Byte]) =
         Try(dec(ByteBuffer.wrap(a)))
-      }
     }
 
   implicit val pekkoImplDouble: PekkoImpl[Double] = anyValInstance[Double](8, _.putDouble(_))(_.getDouble())
@@ -47,10 +47,8 @@ object PekkoImpl extends AnyValGenerator {
   implicit val pekkoImplUnit: PekkoImpl[Unit]     = anyValInstance[Unit](0, (b, _) => b)(_ => ())
 
   implicit val pekkoImplBoolean: PekkoImpl[Boolean] =
-    anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(
-      b => b.get() == 0x01.toByte
-    )
-  implicit val pekkoImplChar: PekkoImpl[Char] = anyValInstance[Char](2, _.putChar(_))(_.getChar())
+    anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(b => b.get() == 0x01.toByte)
+  implicit val pekkoImplChar: PekkoImpl[Char]       = anyValInstance[Char](2, _.putChar(_))(_.getChar())
 
 }
 
