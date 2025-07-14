@@ -94,7 +94,7 @@ lazy val tests = (project in file("tests"))
 lazy val `encoder-macros` = (project in file("encoder-macros"))
   .settings(
     name := "tagless-redux-encoder-macros",
-    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV % "test"),
+    libraryDependencies ++= Seq("org.typelevel" %% "cats-tagless-core" % taglessV),
     macroSettings
   )
   .settings(commonSettings ++ buildSettings ++ publishSettings)

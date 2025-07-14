@@ -9,7 +9,7 @@ private[tagless] object DeriveMacros:
 
 @experimental
 private[tagless] class DeriveMacros[Q <: Quotes](using val q: Q):
-  import quotes.reflect.*
+  import q.reflect.*
 
   type Transform = PartialFunction[(Symbol, TypeRepr, Term), Term]
   type Combine   = PartialFunction[(Symbol, TypeRepr, Seq[Term]), Term]
