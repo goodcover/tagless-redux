@@ -38,8 +38,9 @@ class PekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
     }
 
     val input                = 12
-    val output               = mf.test1(input, "2")
-    val (payload, resultEnc) = wp.encoder.test1(input, "2")
+    val inputStr             = "2"
+    val output               = mf.test1(input, inputStr)
+    val (payload, resultEnc) = wp.encoder.test1(input, inputStr)
     val returnPayload        = wp.decoder.apply(payload)
 
     returnPayload match {

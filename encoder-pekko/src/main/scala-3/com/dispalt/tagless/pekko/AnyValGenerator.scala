@@ -21,15 +21,22 @@ object MacroPekkoWireProtocol:
 
   def wireProtocol[Alg[_[_]]: Type](
     system: Expr[org.apache.pekko.actor.ActorSystem],
-  )(using q: Quotes): Expr[WireProtocol[Alg]] = '{
-    new WireProtocol[Alg]:
-      override def encoder: Alg[[X] =>> WireProtocol.Encoded[X]] = ${ deriveEncoder[Alg](system) }
-      override def decoder: WireProtocol.Decoder[PairE[
-        WireProtocol.Invocation[Alg, *],
-        WireProtocol.Encoder
-      ]] =
-        ${ deriveDecoder[Alg](system) }
-  }
+  )(using q: Quotes): Expr[WireProtocol[Alg]] =
+    import q.reflect.*
+    val result = '{
+      new WireProtocol[Alg]:
+        override def encoder: Alg[[X] =>> WireProtocol.Encoded[X]] = ${ deriveEncoder[Alg](system) }
+        override def decoder: WireProtocol.Decoder[PairE[
+          WireProtocol.Invocation[Alg, *],
+          WireProtocol.Encoder
+        ]] =
+          ${ deriveDecoder[Alg](system) }
+    }
+
+    if (System.getProperty("tagless.macro.debug", "false") == "true") {
+      report.info("macro output: " + result.show, Position.ofMacroExpansion)
+    }
+    result
 
   private def getClassTag[T](using Type[T], Quotes): Expr[ClassTag[T]] = {
     import quotes.reflect.*
@@ -134,7 +141,6 @@ object MacroPekkoWireProtocol:
 
     // Generate implementation based on trait name with enhanced analysis
     val result = genericDeriveEncoder(system)
-//    report.warning(result.show)
     result
 
   def deriveDecoder[Alg[_[_]]: Type](system: Expr[org.apache.pekko.actor.ActorSystem])(using
@@ -221,7 +227,7 @@ object MacroPekkoWireProtocol:
                                 // Generate nested tuple access for each parameter list
                                 val paramListArgs = argss.zipWithIndex.map { case (paramList, paramListIndex) =>
                                   val paramListFieldName = s"_${paramListIndex + 1}"
-                                  val paramListTerm = Select.unique('{ args }.asTerm, paramListFieldName)
+                                  val paramListTerm      = Select.unique('{ args }.asTerm, paramListFieldName)
 
                                   if (paramList.isEmpty) {
                                     // Empty parameter list - no arguments to extract
@@ -297,7 +303,4 @@ object MacroPekkoWireProtocol:
             localMap.getOrElse(result.method, throw new Exception(s"Unknown method: ${result.method}")).apply(result)
           }
     }
-
-    //
-//    report.warning(result.show)
     result
