@@ -1,6 +1,6 @@
 package com.dispalt.tagless.util
 
-import com.dispalt.tagless.util.WireProtocol.{Decoder, Encoder, Invocation}
+import com.dispalt.tagless.util.WireProtocol.{ Decoder, Encoder, Invocation }
 
 import scala.util.Try
 
