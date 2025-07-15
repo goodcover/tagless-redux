@@ -106,7 +106,6 @@ object MacroPekkoWireProtocol:
 
         case '[result] =>
           val impl = pekkoImpl[result]
-          println(tupleArgs)
           val t    = '{
             given org.apache.pekko.actor.ActorSystem = $system
             (
@@ -253,9 +252,13 @@ object MacroPekkoWireProtocol:
             case _              => None
 
     // You can now work with the members
-    val mapGenerated = '{ Map(${ Expr.ofSeq(members.map { case (key, valueExpr) =>
-      '{ (${ Expr(key) }, $valueExpr) }
-    }) }*) }
+    val mapGenerated = '{
+      Map(${
+        Expr.ofSeq(members.map { case (key, valueExpr) =>
+          '{ (${ Expr(key) }, $valueExpr) }
+        })
+      }*)
+    }
 
     val result = '{
       new WireProtocol.Decoder[PairE[
