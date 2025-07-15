@@ -225,7 +225,8 @@ private[tagless] class DeriveMacros[Q <: Quotes](using val q: Q):
   extension (delegate: Option[Term])
     def newClassOf[T: Type](
       transformDef: DefDef => List[List[Tree]] => Option[Term],
-      transformVal: ValDef => Option[Term]
+      transformVal: ValDef => Option[Term],
+      additionalBody: Symbol => List[DefDef] = _ => Nil,
     ): Expr[T] =
       val T = TypeRepr.of[T].dealias.typeSymbol
       if T.flags.is(Flags.Enum) then report.errorAndAbort(s"Not supported: $T is an enum")
@@ -234,7 +235,13 @@ private[tagless] class DeriveMacros[Q <: Quotes](using val q: Q):
 
       val name    = Symbol.freshName("$anon")
       val parents = List(TypeTree.of[Object], TypeTree.of[T])
-      val cls     = Symbol.newClass(Symbol.spliceOwner, name, parents.map(_.tpe), _.overridableMembers(delegate), None)
+      val cls     = Symbol.newClass(
+        Symbol.spliceOwner,
+        name,
+        parents.map(_.tpe),
+        sym => sym.overridableMembers(delegate),
+        None
+      )
       val members = cls.declarations
         .filterNot(_.isClassConstructor)
         .map: member =>
@@ -245,6 +252,36 @@ private[tagless] class DeriveMacros[Q <: Quotes](using val q: Q):
             case _              => report.errorAndAbort(s"Not supported: $member in ${member.owner}")
 
       val newCls = New(TypeIdent(cls)).select(cls.primaryConstructor).appliedToNone
-      Block(ClassDef(cls, parents, members) :: Nil, newCls).asExprOf[T]
+      Block(ClassDef(cls, parents, members ++ additionalBody(cls)) :: Nil, newCls).asExprOf[T]
+
+  def convertArgsToTupleType(argss: DefDef): TypeRepr =
+    // Convert argss: List[List[ValDef]] to tuple type
+    argss.paramss match {
+      case Nil                =>
+        // No arguments - use Unit
+        TypeRepr.of[Unit]
+      case List(Nil)          =>
+        // Single empty parameter list - use Unit
+        TypeRepr.of[Unit]
+      case List(args)         =>
+        // Multiple arguments in single parameter list - create tuple type
+        val argTypes = args.params.collect { case valDef: ValDef =>
+          valDef.tpt.tpe
+        }
+        defn.TupleClass(argTypes.length).typeRef.appliedTo(argTypes)
+      case multipleParamLists =>
+        // Multiple parameter lists - create tuple of tuples type
+        val paramListTypes = multipleParamLists.map { paramList =>
+          if (paramList.params.isEmpty) TypeRepr.of[Unit]
+          else {
+            val argTypes = paramList.params.collect { case valDef: ValDef =>
+              valDef.tpt.tpe
+            }
+            if (argTypes.length == 1) argTypes.head
+            else defn.TupleClass(argTypes.length).typeRef.appliedTo(argTypes)
+          }
+        }
+        defn.TupleClass(paramListTypes.length).typeRef.appliedTo(paramListTypes)
+    }
 
 end DeriveMacros

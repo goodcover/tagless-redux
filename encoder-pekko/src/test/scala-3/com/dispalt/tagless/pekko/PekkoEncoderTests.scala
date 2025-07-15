@@ -28,10 +28,8 @@ class PekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
     //
     val mf = new SafeAlg[Id] {
-      override def test1(i: Int) = {
-        println(s"$i")
+      override def test1(i: Int, r: String) =
         i.toString
-      }
 
       override def test2() = {
         println("test2")
@@ -40,8 +38,8 @@ class PekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
     }
 
     val input                = 12
-    val output               = mf.test1(input)
-    val (payload, resultEnc) = wp.encoder.test1(input)
+    val output               = mf.test1(input, "2")
+    val (payload, resultEnc) = wp.encoder.test1(input, "2")
     val returnPayload        = wp.decoder.apply(payload)
 
     returnPayload match {
@@ -56,11 +54,12 @@ class PekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 object PekkoEncoderTests {
 
   trait SafeAlg[F[_]] {
-    def test1(i: Int): F[String]
+    def test1(i: Int, r: String): F[String]
     def test2(): F[String]
   }
 
   object SafeAlg {
+    //
     given mkWireProtocol(using system: ActorSystem): WireProtocol[SafeAlg] = MacroPekkoWireProtocol.derive[SafeAlg]
 
   }
