@@ -74,65 +74,40 @@ def compute(x: Int, y: Int): WireProtocol.Encoded[Int] = (
 )
 ```
 
+#### Multiple Parameter Lists (Curried Methods)
+```scala
+def processData(input: String)(config: Int)(flag: Boolean): F[String]
+```
+Generates:
+```scala
+def processData(input: String)(config: Int)(flag: Boolean): WireProtocol.Encoded[String] = (
+  PekkoCodecFactory.encode[Result[((String), (Int), (Boolean))]].apply(
+    Result("processData", ((input), (config), (flag)))
+  ),
+  PekkoCodecFactory.decode[String]
+)
+```
+
+**Note**: Multiple parameter lists are encoded as nested tuples, where each parameter list becomes a tuple element. The decoder uses `Select.unique` to access nested tuple fields properly, ensuring correct parameter extraction during method invocation.
+
 ## Supported Algebras
 
 Currently supports specific algebras via pattern matching:
 
-### TestAlg
+
+### MultipleParamListTestAlg (Test Algebra)
 ```scala
-trait TestAlg[F[_]]:
-  def getValue: F[String]
-  def setValue(value: String): F[Unit]
-  def compute(x: Int, y: Int): F[Int]
+trait MultipleParamListTestAlg[F[_]]:
+  def simpleMethod: F[String]
+  def singleParamList(value: Int): F[String]
+  def multipleParamLists(first: String)(second: Int): F[String]
+  def threeParamLists(a: String)(b: Int)(c: Boolean): F[String]
+  def mixedParamLists(a: String, b: Int)(c: Boolean): F[String]
 ```
 
-### UserAlg
-```scala
-trait UserAlg[F[_]]:
-  def getUser(id: Long): F[String]
-  def createUser(name: String, email: String): F[Long]
-  def deleteUser(id: Long): F[Unit]
-  def listUsers: F[List[String]]
-```
+This test algebra demonstrates all supported parameter list patterns and is used to verify the nested tuple handling functionality.
 
-## Adding New Algebras
 
-To add support for a new algebra, add a case to the pattern match in `deriveEncoder`:
-
-```scala
-case "MyNewAlg" =>
-  '{
-    given org.apache.pekko.actor.ActorSystem = $system
-    import com.dispalt.tagless.util.{Result, WireProtocol}
-    import com.dispalt.taglessPekko.PekkoCodecFactory
-    
-    new MyNewAlg[WireProtocol.Encoded] {
-      // Generated method implementations
-    }.asInstanceOf[Alg[WireProtocol.Encoded]]
-  }
-```
-
-## Error Handling
-
-For unsupported algebras, the macro provides helpful error messages showing:
-- The trait name that's not supported
-- All abstract methods found in the trait
-- Method signatures with parameter and return types
-- Number of methods analyzed
-
-Example error:
-```
-Generic implementation for trait OrderAlg not yet implemented.
-Currently supports: TestAlg, UserAlg
-
-To add support for OrderAlg, add a case in the macro for:
-trait OrderAlg[F[_]]:
-  createOrder(customerId: scala.Long, items: scala.collection.immutable.List[scala.Predef.String]): F[scala.Predef.String]
-  getOrder(orderId: scala.Predef.String): F[scala.Option[scala.Predef.String]]
-  cancelOrder(orderId: scala.Predef.String): F[scala.Boolean]
-
-The macro analyzed 3 abstract methods in this trait.
-```
 
 ## Dependencies
 
@@ -155,12 +130,49 @@ pekko {
 }
 ```
 
+## Recent Improvements
+
+### Nested Parameter List Support (v2024.1)
+
+The macro now properly handles methods with multiple parameter lists (curried methods) using nested tuple structures:
+
+**Before**: Multiple parameter lists were flattened, causing incorrect parameter extraction during decoding.
+
+**After**: Each parameter list is preserved as a separate tuple element, enabling proper nested access:
+
+```scala
+// Method definition
+def method(a: String)(b: Int)(c: Boolean): F[Result]
+
+// Encoding structure
+((a), (b), (c))  // Nested tuples preserving parameter list boundaries
+
+// Decoding access pattern
+args._1  // First parameter list: a
+args._2  // Second parameter list: b
+args._3  // Third parameter list: c
+```
+
+**Key Changes**:
+- Modified `mkDecode` method in `AnyValGenerator.scala` to use nested tuple access
+- Replaced flattening logic with proper `Select.unique` calls for nested field access
+- Updated method call generation to use multiple `Apply` calls for curried methods
+- Added comprehensive test coverage for various parameter list scenarios
+
+**Supported Scenarios**:
+- Empty parameter lists: `def method(): F[Result]`
+- Single parameter lists: `def method(a: String): F[Result]`
+- Multiple parameters in single list: `def method(a: String, b: Int): F[Result]`
+- Multiple parameter lists: `def method(a: String)(b: Int): F[Result]`
+- Mixed parameter lists: `def method(a: String, b: Int)(c: Boolean): F[Result]`
+
 ## Testing
 
 Run tests with:
 ```bash
 sbt "project encoder-pekko" "Test/runMain com.dispalt.tagless.pekko.MacroTest"
 sbt "project encoder-pekko" "Test/runMain com.dispalt.tagless.pekko.UserAlgTest"
+sbt "project encoder-pekko" "testOnly *MultipleParamListTests"  # Test nested parameter lists
 ```
 
 ## Future Enhancements
@@ -169,3 +181,4 @@ sbt "project encoder-pekko" "Test/runMain com.dispalt.tagless.pekko.UserAlgTest"
 - Support for type parameters in method signatures
 - Automatic case class generation for complex parameter types
 - Integration with other serialization frameworks beyond Pekko
+- ✅ ~~Support for multiple parameter lists (curried methods)~~ - **Completed in v2024.1**

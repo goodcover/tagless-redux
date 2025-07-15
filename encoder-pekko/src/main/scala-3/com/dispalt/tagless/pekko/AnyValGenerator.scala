@@ -212,18 +212,37 @@ object MacroPekkoWireProtocol:
                             }
                         }
                       case _            =>
-                        // Multiple parameter lists - flatten and call with proper tuple type
+                        // Multiple parameter lists - access nested tuples
                         tupleType.asType match {
                           case '[tupleT] =>
                             '{
                               val args = result.a.asInstanceOf[tupleT]
                               ${
-                                val totalParams = argss.flatten.length
-                                val argTerms    = (1 to totalParams).map { i =>
-                                  val fieldName = s"_$i"
-                                  Select.unique('{ args }.asTerm, fieldName)
-                                }.toList
-                                Apply(Select(mfTerm, sym), argTerms).asExprOf[F[result]]
+                                // Generate nested tuple access for each parameter list
+                                val paramListArgs = argss.zipWithIndex.map { case (paramList, paramListIndex) =>
+                                  val paramListFieldName = s"_${paramListIndex + 1}"
+                                  val paramListTerm = Select.unique('{ args }.asTerm, paramListFieldName)
+
+                                  if (paramList.isEmpty) {
+                                    // Empty parameter list - no arguments to extract
+                                    Nil
+                                  } else if (paramList.length == 1) {
+                                    // Single parameter - the term itself is the argument
+                                    List(paramListTerm)
+                                  } else {
+                                    // Multiple parameters - extract from nested tuple
+                                    (1 to paramList.length).map { paramIndex =>
+                                      val paramFieldName = s"_$paramIndex"
+                                      Select.unique(paramListTerm, paramFieldName)
+                                    }.toList
+                                  }
+                                }
+
+                                // Apply arguments using multiple Apply calls for multiple parameter lists
+                                val methodCall = paramListArgs.foldLeft(Select(mfTerm, sym): Term) { (acc, args) =>
+                                  Apply(acc, args)
+                                }
+                                methodCall.asExprOf[F[result]]
                               }
                             }
                         }
