@@ -1,8 +1,8 @@
-package com.dispalt.taglessPekko
+package com.dispalt.tagless.pekko
 
 import com.dispalt.tagless.EncoderGeneratorMacro
 
-import scala.annotation.{compileTimeOnly, StaticAnnotation}
+import scala.annotation.{ compileTimeOnly, StaticAnnotation }
 import scala.reflect.macros.whitebox
 
 @compileTimeOnly("Cannot expand @pekkoEncoder")
@@ -16,10 +16,9 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
   def pekkoImpl(annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._
     annottees.map(_.tree).toList match {
-      case (head: ClassDef) :: Nil =>
+      case (head: ClassDef) :: Nil                               =>
         c.Expr[Any](
           apply[PekkoCodecFactory.type, PekkoImpl](
-            PekkoCodecFactory,
             head,
             None,
             EmptyTree,
@@ -29,7 +28,6 @@ class EncoderGenerator(val c: whitebox.Context) extends EncoderGeneratorMacro {
       case (classDef: ClassDef) :: (objectDef: ModuleDef) :: Nil =>
         c.Expr[Any](
           apply[PekkoCodecFactory.type, PekkoImpl](
-            PekkoCodecFactory,
             classDef,
             Some(objectDef),
             EmptyTree,

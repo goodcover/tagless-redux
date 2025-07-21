@@ -1,22 +1,24 @@
-package com.dispalt.taglessPekko
+package com.dispalt.tagless.pekko
 
 import org.apache.pekko.actor.ActorSystem
 import cats.Id
 import cats.tagless.autoFunctorK
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessPekko.pekkoEncoderTests.{Bar, Baz, SafeAlg, SafeAlg2}
+import pekkoEncoderTests.{ Bar, Baz, SafeAlg, SafeAlg2 }
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.{matchers, Assertion}
+import org.scalatest.{ matchers, Assertion }
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import com.typesafe.config.ConfigFactory
 
 class pekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   behavior of "pekkoEncoder"
 
-  val cfg = ConfigFactory.parseString("""
+  val cfg = ConfigFactory
+    .parseString("""
   pekko.actor.allow-java-serialization=true
-  """).withFallback(ConfigFactory.load())
+  """)
+    .withFallback(ConfigFactory.load())
 
   implicit val system: ActorSystem = ActorSystem(this.suiteName, cfg)
   import com.dispalt.tagless.TwoWaySimulator._
@@ -39,7 +41,7 @@ class pekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
     returnPayload match {
       case Failure(exception) => fail(exception)
-      case Success(value) =>
+      case Success(value)     =>
         value.second(value.first.run[Id](mf)) shouldBe PekkoCodecFactory.encode[String].apply(output)
     }
   }
@@ -64,18 +66,15 @@ class pekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
   it should "anyvals in tuple2" in {
 
-    for { i <- 0 to 1000 } {
+    for { i <- 0 to 1000 }
       roundTrip(("foo", true))
-    }
   }
 
-  it should "handle case classes" in {
+  it should "handle case classes" in
     roundTrip(Bar(1))
-  }
 
-  it should "handle anyvals" in {
+  it should "handle anyvals" in
     roundTrip(Baz(1))
-  }
 
   it should "encdec" in {
     val actions = new SafeAlg[Id] {
@@ -89,9 +88,8 @@ class pekkoEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
   it should "client/server with extra type param" in {
     val actions = new SafeAlg2[Boolean, Id] {
-      override def test2(s: String): Id[(String, Boolean)] = {
+      override def test2(s: String): Id[(String, Boolean)] =
         (s, true)
-      }
     }
 
     val fooServer = server(actions)
@@ -107,6 +105,8 @@ object pekkoEncoderTests {
   trait SafeAlg[F[_]] {
     def test1(i: Int): F[String]
   }
+
+  object SafeAlg {}
 
   object Hello
 

@@ -3,7 +3,6 @@ package com.dispalt.tagless.pekko
 import org.apache.pekko.actor.ActorSystem
 import cats.Id
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessPekko.PekkoCodecFactory
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.{ matchers, Assertion }
 

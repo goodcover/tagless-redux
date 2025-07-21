@@ -11,4 +11,8 @@ trait KryoCodec extends CodecFactory[KryoImpl] {
 
 }
 
-object KryoCodec extends KryoCodec
+object KryoCodec extends KryoCodec {
+  override def encode[A](implicit p: KryoImpl[A]): Encoder[A] = { (a: A) => p.serialize(a).get }
+
+  override def decode[A](implicit p: KryoImpl[A]): Decoder[A] = { (ab: Array[Byte]) => p.deserialize[A](ab) }
+}

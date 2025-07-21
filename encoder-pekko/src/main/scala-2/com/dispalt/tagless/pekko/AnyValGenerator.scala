@@ -1,4 +1,4 @@
-package com.dispalt.taglessPekko
+package com.dispalt.tagless.pekko
 
 import scala.reflect.macros.blackbox.{Context => MacroContext}
 
@@ -26,9 +26,8 @@ class AnyValGeneratorMacros(val c: MacroContext) {
   def impl[T <: AnyVal](implicit t: WeakTypeTag[T]): Expr[PekkoImpl[T]] = {
     c.Expr[PekkoImpl[T]](withAnyValParam(t.tpe) { param =>
       q"""
-        implicitly[_root_.com.dispalt.taglessPekko.PekkoImpl[${param.typeSignature}]].imap(new ${t.tpe}(_))((v: ${t.tpe}) => v.${param.name.toTermName})
+        implicitly[_root_.com.dispalt.tagless.pekko.PekkoImpl[${param.typeSignature}]].imap(new ${t.tpe}(_))((v: ${t.tpe}) => v.${param.name.toTermName})
       """
     }.getOrElse(c.abort(c.enclosingPosition, s"Could find ${t.tpe}")))
   }
 }
-

@@ -1,4 +1,4 @@
-package com.dispalt.taglessPekko
+package com.dispalt.tagless.pekko
 
 import com.dispalt.tagless.pekko.AnyValGenerator
 import org.apache.pekko.actor.ActorSystem

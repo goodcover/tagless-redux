@@ -1,6 +1,6 @@
 package com.dispalt.tagless
 
-import com.dispalt.tagless.util.{CodecFactory, WireProtocol}
+import com.dispalt.tagless.util.CodecFactory
 
 import scala.reflect.macros.whitebox
 
@@ -9,7 +9,6 @@ abstract class EncoderGeneratorMacro {
   val c: whitebox.Context
 
   import c.universe._
-  import c.internal._
 
   val pkg      = q"_root_.com.dispalt.tagless.util"
   val wireP    = q"$pkg.WireProtocol"
@@ -20,31 +19,32 @@ abstract class EncoderGeneratorMacro {
     // God this is awful
     case AppliedTypeTree(Select(_, TypeName("<repeated>")), args) =>
       (true, tq"Seq[..$args]")
-    case x => (false, x)
+    case x                                                        => (false, x)
   }
 
-  def encoderBody(traitStats: Seq[Tree], theF: TypeName, encodeFn: Symbol, decodeFn: Symbol): Seq[Tree] = {
+  def encoderBody(traitStats: Seq[Tree], theF: TypeName, encodeFn: Symbol, decodeFn: Symbol): Seq[Tree] =
     traitStats.map {
       case q"def ${name: TermName}[..$tps](..${params: List[ValDef]}): ${Ident(someF)}[$out]" if someF == theF =>
         val tupleTpeBase    = TermName(s"Tuple${params.size}")
         val tupleTpeBaseTpe = TypeName(s"Tuple${params.size}")
         q"""
         final def $name[..$tps](..$params): $wireP.Encoded[$out] = (
-          $encodeFn[$pkg.Result[$tupleTpeBaseTpe[..${params.map(_.tpt)}]]].apply($pkg.Result(${name.decodedName.toString}, $tupleTpeBase(..${params
-          .map(_.name)}))),
+          $encodeFn[$pkg.Result[$tupleTpeBaseTpe[..${params.map(
+            _.tpt
+          )}]]].apply($pkg.Result(${name.decodedName.toString}, $tupleTpeBase(..${params
+            .map(_.name)}))),
           $decodeFn[$out]
         )
         """
-      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF =>
+      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF                                    =>
         q"""
-        final val ${name}: $wireP.Encoded[$out] = (
+        final val $name: $wireP.Encoded[$out] = (
           $encodeFn[$pkg.Result[Unit]].apply($pkg.Result(${name.decodedName.toString}, ())),
           $decodeFn[$out]
         )"""
-      case other =>
+      case other                                                                                               =>
         c.abort(c.enclosingPosition, s"Illegal method [$other]")
     }
-  }
 
   def decoderCases(
     traitStats: Seq[Tree],
@@ -56,17 +56,16 @@ abstract class EncoderGeneratorMacro {
   ): Seq[Tree] = {
     val cases = traitStats.map {
       case q"def ${name: TermName}[..$tps](..${params: List[ValDef]}): ${Ident(someF)}[$out]" if someF == theF =>
-        val typeInTypeOut = params.map { p => toType(p.tpt) }.toVector
+        val typeInTypeOut = params.map(p => toType(p.tpt)).toVector
 
-        val arglist = (1 to params.size).map(i => (i, s"_$i")).map {
-          case (i, x) =>
-            val wildcard = typeInTypeOut(i - 1)._1
-            val term     = TermName(x)
-            if (wildcard) {
-              q"(args.$term: _*)"
-            } else {
-              q"args.$term"
-            }
+        val arglist      = (1 to params.size).map(i => (i, s"_$i")).map { case (i, x) =>
+          val wildcard = typeInTypeOut(i - 1)._1
+          val term     = TermName(x)
+          if (wildcard) {
+            q"(args.$term: _*)"
+          } else {
+            q"args.$term"
+          }
 
         }
         val tupleTpeBase = TypeName(s"Tuple${params.size}")
@@ -83,7 +82,7 @@ abstract class EncoderGeneratorMacro {
             }
             $pkg.PairE(invocation, $encodeFn[$out])
          """
-      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF =>
+      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF                                    =>
         val nameLit = name.decodedName.toString
         cq"""$nameLit =>
                   val invocation = new $wireP.Invocation[$unifiedBase, $out] {
@@ -92,7 +91,7 @@ abstract class EncoderGeneratorMacro {
                   }
                   $pkg.PairE(invocation, $encodeFn[$out])
              """
-      case other =>
+      case other                                                                                               =>
         c.abort(c.enclosingPosition, s"Illegal method [$other]")
     }
     cases :+ cq"""other =>
@@ -101,7 +100,6 @@ abstract class EncoderGeneratorMacro {
   }
 
   def apply[C <: CodecFactory[Impl]: TypeTag, Impl[_]](
-    cf: C,
     base: ClassDef,
     companion: Option[ModuleDef],
     imports: Tree,
@@ -146,7 +144,7 @@ abstract class EncoderGeneratorMacro {
         implicit def $instanceName[..$abstractParams](implicit ..$additionalParams): $wirePTpe[$unifiedBase]  =
          new $wirePTpe[$unifiedBase] {
 
-            final val encoder = new ${typeName}[..$abstractTypes, $wireP.Encoded] {
+            final val encoder = new $typeName[..$abstractTypes, $wireP.Encoded] {
               ..${encoderBody(traitStats, theF, encodeFn, decodeFn)}
             }
 
@@ -154,13 +152,13 @@ abstract class EncoderGeneratorMacro {
           }
     """)
 
-    val newCompanion = companion match {
+    val newCompanion   = companion match {
       case Some(q"..$mods object $objName extends { ..$objEarlyDefs } with ..$objParents { $objSelf => ..$objDefs }") =>
         q"""$mods object $objName extends { ..$objEarlyDefs } with ..$objParents { $objSelf =>
           ..$objDefs
           ..$companionStats
         }"""
-      case _ =>
+      case _                                                                                                          =>
         q"object ${base.name.toTermName} { ..$companionStats }"
 
     }

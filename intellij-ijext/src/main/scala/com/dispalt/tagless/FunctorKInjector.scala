@@ -8,7 +8,7 @@ class FunctorKInjector extends SyntheticMembersInjector {
 
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = true
 
-  override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
+  override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
@@ -18,19 +18,18 @@ class FunctorKInjector extends SyntheticMembersInjector {
               mkWireProtocolKryo(aClass) ++
               mkWireProtocolPekko(aClass) ++
               mkInstrument(aClass)
-          case _ => Seq.empty
+          case _                        => Seq.empty
         }
-      case _ => Seq.empty
+      case _             => Seq.empty
     }
-  }
 }
 
 object FunctorKInjector {
-  private[this] val autoFuncAnn    = "cats.tagless.autoFunctorK"
-  private[this] val instrumentAnn  = "cats.tagless.autoInstrument"
-  private[this] val finalAlgAnn    = "cats.tagless.finalAlg"
-  private[this] val kryoEncoderAnn = "com.dispalt.taglessKryo.kryoEncoder"
-  private[this] val pekkoEncoderAnn = "com.dispalt.taglessPekko.pekkoEncoder"
+  private[this] val autoFuncAnn     = "cats.tagless.autoFunctorK"
+  private[this] val instrumentAnn   = "cats.tagless.autoInstrument"
+  private[this] val finalAlgAnn     = "cats.tagless.finalAlg"
+  private[this] val kryoEncoderAnn  = "com.dispalt.tagless.kryo.kryoEncoder"
+  private[this] val pekkoEncoderAnn = "com.dispalt.tagless.pekko.pekkoEncoder"
 
   private def isAutoFunctorK(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(autoFuncAnn) != null
@@ -63,7 +62,7 @@ object FunctorKInjector {
 
       val tpText = clazz.typeParameters.filterNot(_ eq effP) match {
         case Seq() => s"${clazz.qualifiedName}"
-        case _ =>
+        case _     =>
           val tpes = clazz.typeParameters.map { tp =>
             if (tp == effP) {
               "Ƒ"
@@ -80,9 +79,8 @@ object FunctorKInjector {
 
   private def mkFunctorK(clazz: ScTypeDefinition): Seq[String] = if (isAutoFunctorK(clazz)) {
 
-    typeParams(clazz).toSeq.flatMap {
-      case (tpName, tpText) =>
-        Seq(s"implicit def functorKFor${clazz.name}${tpName}: _root_.cats.tagless.FunctorK[${tpText}] = ???")
+    typeParams(clazz).toSeq.flatMap { case (tpName, tpText) =>
+      Seq(s"implicit def functorKFor${clazz.name}$tpName: _root_.cats.tagless.FunctorK[$tpText] = ???")
     }
 
   } else {
@@ -91,11 +89,10 @@ object FunctorKInjector {
 
   private def mkInstrument(clazz: ScTypeDefinition): Seq[String] = if (isInstrument(clazz)) {
 
-    typeParams(clazz).toSeq.flatMap {
-      case (tpName, tpText) =>
-        Seq(
-          s"implicit def instrumentFor${clazz.name}${tpName}: _root_.cats.tagless.diagnosis.Instrument[${tpText}] = ???"
-        )
+    typeParams(clazz).toSeq.flatMap { case (tpName, tpText) =>
+      Seq(
+        s"implicit def instrumentFor${clazz.name}$tpName: _root_.cats.tagless.diagnosis.Instrument[$tpText] = ???"
+      )
     }
 
   } else {
@@ -115,11 +112,10 @@ object FunctorKInjector {
 
   private def mkWireProtocolKryo(clazz: ScTypeDefinition) = if (isKryoEncoder(clazz)) {
 
-    typeParams(clazz).toSeq.flatMap {
-      case (tpName, tpText) =>
-        Seq(
-          s"implicit def taglessWireProtocol${clazz.name}${tpName}: _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
-        )
+    typeParams(clazz).toSeq.flatMap { case (tpName, tpText) =>
+      Seq(
+        s"implicit def taglessWireProtocol${clazz.name}$tpName: _root_.com.dispalt.tagless.util.WireProtocol[$tpText] = ???"
+      )
     }
 
   } else {
@@ -128,11 +124,10 @@ object FunctorKInjector {
 
   private def mkWireProtocolPekko(clazz: ScTypeDefinition) = if (isPekkoEncoder(clazz)) {
 
-    typeParams(clazz).toSeq.flatMap {
-      case (tpName, tpText) =>
-        Seq(
-          s"implicit def taglessWireProtocol${clazz.name}${tpName}(implicit system: _root_.org.apache.pekko.actor.ActorSystem): _root_.com.dispalt.tagless.util.WireProtocol[${tpText}] = ???"
-        )
+    typeParams(clazz).toSeq.flatMap { case (tpName, tpText) =>
+      Seq(
+        s"implicit def taglessWireProtocol${clazz.name}$tpName(implicit system: _root_.org.apache.pekko.actor.ActorSystem): _root_.com.dispalt.tagless.util.WireProtocol[$tpText] = ???"
+      )
     }
 
   } else {

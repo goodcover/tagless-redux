@@ -1,12 +1,12 @@
 package com.dispalt.tagless.kryo.tests
 
-import cats.tagless.autoFunctorK
+import cats.tagless.{ Derive, FunctorK }
 import com.dispalt.tagless.kryo.kryoEncoder
+import com.dispalt.tagless.kryo.Default._
 
 object algs {
 
   @kryoEncoder
-  @autoFunctorK(autoDerivation = false)
   trait SafeAlg[F[_]] {
     def test(i: Int, foo: String): F[Int]
     def test2(i: Int): F[Int]
@@ -14,5 +14,7 @@ object algs {
   }
 
   //
-  object SafeAlg
+  object SafeAlg {
+    implicit def functorK: FunctorK[SafeAlg] = Derive.functorK
+  }
 }

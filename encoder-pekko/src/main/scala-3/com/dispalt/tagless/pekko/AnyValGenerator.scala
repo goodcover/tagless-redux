@@ -2,14 +2,14 @@ package com.dispalt.tagless.pekko
 
 import com.dispalt.tagless.*
 import com.dispalt.tagless.util.{ CodecFactory, PairE, Result, WireProtocol }
-import com.dispalt.taglessPekko.{ PekkoCodecFactory, PekkoImpl }
+import com.dispalt.tagless.pekko.{ PekkoCodecFactory, PekkoImpl }
 import org.apache.pekko.actor.ActorSystem
 
 import scala.annotation.experimental
 import scala.quoted.*
 import scala.reflect.ClassTag
 
-trait AnyValGenerator extends com.dispalt.taglessPekko.DefaultGenerator {}
+trait AnyValGenerator extends com.dispalt.tagless.pekko.DefaultGenerator {}
 
 @experimental
 object MacroPekkoWireProtocol:
