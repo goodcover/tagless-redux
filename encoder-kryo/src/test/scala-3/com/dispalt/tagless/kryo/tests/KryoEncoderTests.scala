@@ -1,18 +1,18 @@
-package com.dispalt.taglessKryo.tests
+package com.dispalt.tagless.kryo.tests
 
 import java.util.UUID
 
 import cats.Id
 import com.dispalt.tagless.TwoWaySimulator._
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessKryo.Default._
-import com.dispalt.taglessKryo.{KryoCodec, KryoImpl}
-import com.dispalt.taglessKryo.tests.algs.SafeAlg
+import com.dispalt.tagless.kryo.{ KryoCodec, KryoImpl }
+import com.dispalt.tagless.kryo.tests.algs.SafeAlg
 import org.scalatest.Assertion
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import com.dispalt.tagless.kryo.Default.kryoInstance
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class KryoEncoderTests extends AnyFlatSpec with Matchers {
 
@@ -52,9 +52,9 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
     val output               = mf.test2(input)
     val (payload, resultEnc) = wp.encoder.test2(input)
     val returnPayload        = wp.decoder.apply(payload)
-    val result3 = returnPayload match {
+    val result3              = returnPayload match {
       case Failure(exception) => fail(exception)
-      case Success(value) =>
+      case Success(value)     =>
         value.second(value.first.run[Id](mf)) shouldBe KryoCodec.encode[Int].apply(output)
     }
 
@@ -62,7 +62,7 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
   }
 
   it should "encdec" in {
-    val uuid = UUID.randomUUID.toString
+    val uuid    = UUID.randomUUID.toString
     val actions = new SafeAlg[Id] {
       override def test(i: Int, foo: String): Int = i
       override def test2(i: Int): Int             = i
@@ -78,15 +78,14 @@ class KryoEncoderTests extends AnyFlatSpec with Matchers {
     fooClient.id.toEither shouldBe Right(uuid)
   }
 
-  def roundTrip[A](a: A)(implicit ki: KryoImpl[A]): Assertion = {
-    val ab = KryoCodec.encode[A](ki).apply(a)
-    val d  = KryoCodec.decode[A](ki).apply(ab)
+  def roundTrip[A](a: A)(using ki: KryoImpl[A]): Assertion = {
+    val ab = KryoCodec.encode[A](using ki).apply(a)
+    val d  = KryoCodec.decode[A](using ki).apply(ab)
     d.get shouldBe a
   }
 
   it should "handle high volume" in {
-    for { i <- 0 to 20000 } {
+    for { i <- 0 to 20000 }
       roundTrip(true)
-    }
   }
 }

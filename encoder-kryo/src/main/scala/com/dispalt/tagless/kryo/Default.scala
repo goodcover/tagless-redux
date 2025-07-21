@@ -1,4 +1,4 @@
-package com.dispalt.taglessKryo
+package com.dispalt.tagless.kryo
 
 import com.typesafe.config.ConfigFactory
 import io.altoo.serialization.kryo.scala.ScalaKryoSerializer

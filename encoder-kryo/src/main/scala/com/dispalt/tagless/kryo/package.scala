@@ -1,7 +1,7 @@
-package com.dispalt
+package com.dispalt.tagless
 
 import io.altoo.serialization.kryo.scala.ScalaKryoSerializer
 
-package object taglessKryo {
+package object kryo {
   type KryoImpl[A] = ScalaKryoSerializer
 }

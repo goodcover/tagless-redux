@@ -1,4 +1,4 @@
-package com.dispalt.taglessKryo
+package com.dispalt.tagless.kryo
 
 import com.dispalt.tagless.EncoderGeneratorMacro
 

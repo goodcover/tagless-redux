@@ -1,8 +1,7 @@
-package com.dispalt.taglessKryo.tests
+package com.dispalt.tagless.kryo.tests
 
 import cats.tagless.autoFunctorK
-import com.dispalt.taglessKryo.Default._
-import com.dispalt.taglessKryo.kryoEncoder
+import com.dispalt.tagless.kryo.kryoEncoder
 
 object algs {
 

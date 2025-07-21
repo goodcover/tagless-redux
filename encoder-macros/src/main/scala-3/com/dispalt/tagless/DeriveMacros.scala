@@ -284,4 +284,42 @@ private[tagless] class DeriveMacros[Q <: Quotes](using val q: Q):
         defn.TupleClass(paramListTypes.length).typeRef.appliedTo(paramListTypes)
     }
 
+  def convertTuples(argss: List[List[Tree]]) = {
+    // Convert argss: List[List[Tree]] to a tuple of tuples
+    val argsTuple = argss match {
+      case Nil                =>
+        // No arguments - use Unit
+        '{ () }
+      case List(Nil)          =>
+        // Single empty parameter list - use Unit
+        '{ () }
+      case List(args)         =>
+        // Multiple arguments in single parameter list - create tuple
+        val argExprs = args.map(_.asExpr)
+        Expr.ofTupleFromSeq(argExprs)
+      case multipleParamLists =>
+        // Multiple parameter lists - create tuple of tuples
+        val paramListTuples = multipleParamLists.map { paramList =>
+          if (paramList.isEmpty) '{ () }
+          else if (paramList.length == 1) paramList.head.asExpr
+          else Expr.ofTupleFromSeq(paramList.map(_.asExpr))
+        }
+        Expr.ofTupleFromSeq(paramListTuples)
+    }
+    argsTuple
+  }
+
+  def summonP[T, P[_]: Type](using Type[T], Quotes): Expr[P[T]] =
+    import quotes.reflect.*
+    Expr.summon[P[T]] match {
+      case Some(ct) =>
+        ct
+      case None     =>
+        report.error(
+          s"Unable to find a ${Type.of[P]} for type ${Type.show[T]}",
+          Position.ofMacroExpansion
+        )
+        throw new Exception("Error when applying macro")
+    }
+
 end DeriveMacros

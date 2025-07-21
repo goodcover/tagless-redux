@@ -14,6 +14,6 @@ trait MultipleParamListTestAlg[F[_]] derives FunctorK:
   def mixedParamLists(a: String, b: Int)(c: Boolean): F[String]
 
 object MultipleParamListTestAlg {
-  given mkWireProtocol(using system: ActorSystem): WireProtocol[MultipleParamListTestAlg] = 
+  given mkWireProtocol(using system: ActorSystem): WireProtocol[MultipleParamListTestAlg] =
     MacroPekkoWireProtocol.derive[MultipleParamListTestAlg]
 }
