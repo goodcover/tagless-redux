@@ -236,7 +236,7 @@ lazy val buildSettings = scalacOptions ++= (CrossVersion.partialVersion(scalaVer
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
-  scalaVersion             := scalaV,
+  scalaVersion             := scala3V,
   crossScalaVersions       := Seq(scalaV, scala3V),
   organization             := "com.dispalt.redux",
   sonatypeProfileName      := "com.dispalt",
