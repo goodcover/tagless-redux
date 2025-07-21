@@ -2,7 +2,6 @@ package cats.tagless.tests
 
 import cats.tagless.FunctorK
 
-// TODO @finalAlg
 trait SafeAlg[F[_]] derives FunctorK {
   def parseInt(i: String): F[Int]
   def divide(dividend: Float, divisor: Float): F[Float]
