@@ -1,4 +1,4 @@
-package com.dispalt.taglessBoopickle
+package com.dispalt.tagless.boopickle
 
 import com.dispalt.tagless.util.WireProtocol
 import com.dispalt.tagless.util.WireProtocol.{Encoded, Invocation}
@@ -146,7 +146,7 @@ class DeriveMacros(val c: blackbox.Context) {
 
           val body =
             q"""(_root_.boopickle.Default.Pickle.intoBytes((${name.name.toString}, ..$args)).array()
-                ,_root_.com.dispalt.taglessBoopickle.BoopickleCodec.decoder[${outParams.last}]
+                ,_root_.com.dispalt.tagless.boopickle.BoopickleCodec.decoder[${outParams.last}]
                 )"""
 
           method
@@ -206,7 +206,7 @@ class DeriveMacros(val c: blackbox.Context) {
                 q"""
                     $argsTerm
                     val invocation = $invocation
-                    val resultEncoder = _root_.com.dispalt.taglessBoopickle.BoopickleCodec.encoder[$out]
+                    val resultEncoder = _root_.com.dispalt.tagless.boopickle.BoopickleCodec.encoder[$out]
                     _root_.com.dispalt.tagless.util.PairE(invocation, resultEncoder)
                   """
 

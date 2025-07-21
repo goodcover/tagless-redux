@@ -1,4 +1,4 @@
-package com.dispalt.taglessBoopickle
+package com.dispalt.tagless.boopickle
 
 import com.dispalt.tagless.util.WireProtocol
 

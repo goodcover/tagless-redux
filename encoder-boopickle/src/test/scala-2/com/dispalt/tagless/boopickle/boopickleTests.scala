@@ -1,4 +1,4 @@
-package com.dispalt.taglessBoopickle
+package com.dispalt.tagless.boopickle
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
@@ -10,7 +10,7 @@ import cats.tagless.tests.SafeAlg
 import cats.tagless.{Derive, FunctorK}
 import com.dispalt.tagless.TwoWaySimulator._
 import com.dispalt.tagless.util.WireProtocol
-import com.dispalt.taglessBoopickle.boopickleTests.{Bar, Baz, FooId, SafeAlg2}
+import com.dispalt.tagless.boopickle.boopickleTests.{Bar, Baz, FooId, SafeAlg2}
 import org.scalatest.Assertion
 
 import scala.util.{Failure, Success}
