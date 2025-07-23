@@ -1,5 +1,5 @@
-import sbtrelease.ReleaseStateTransformations.*
 import sbtrelease.CustomRelease
+import sbtrelease.ReleaseStateTransformations.*
 
 import java.net.URI
 
@@ -36,7 +36,7 @@ lazy val macroAnnotationSettings = Seq(
 )
 
 ThisBuild / scalaVersion := scalaV
-ThisBuild / organization := "com.dispalt.redux"
+ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
@@ -177,7 +177,7 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
            |    <vendor>tagless-redux</vendor>
            |    <ideaVersion since-build="2020.3.0">
            |        <extension interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
-           |                   implementation="com.dispalt.tagless.FunctorKInjector">
+           |                   implementation="com.goodcover.tagless.FunctorKInjector">
            |            <name>Tagless macro support</name>
            |            <description>FunctorK injector</description>
            |        </extension>
@@ -238,8 +238,8 @@ lazy val commonSettings = Seq(
   Test / parallelExecution := false,
   scalaVersion             := scala3V,
   crossScalaVersions       := Seq(scalaV, scala3V),
-  organization             := "com.dispalt.redux",
-  sonatypeProfileName      := "com.dispalt",
+  organization             := "com.goodcover.redux",
+  sonatypeProfileName      := "com.goodcover",
   developers               := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", URI.create("http://dispalt.com").toURL)
   ),
@@ -248,7 +248,7 @@ lazy val commonSettings = Seq(
     case _            => Seq(compilerPlugin(("org.typelevel" % "kind-projector" % "0.13.3").cross(CrossVersion.full)))
   }),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _)) => Seq("-Ykind-projector", "-experimental")
+    case Some((3, _)) => Seq("-Xkind-projector", "-experimental")
     case _            => Seq.empty
   })
 )

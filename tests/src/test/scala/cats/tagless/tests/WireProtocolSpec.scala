@@ -3,9 +3,9 @@ package cats.tagless.tests
 import cats.tagless.FunctorK
 import cats.tagless.tests.WireProtocolSpec.QuoteAlg
 import cats.{~>, Id}
-import com.dispalt.tagless.util.WireProtocol.{Decoder, Invocation}
-import com.dispalt.tagless.util.{PairE, WireProtocol}
-import com.dispalt.tagless.kryo.Default.LocalInjector
+import com.goodcover.tagless.util.WireProtocol.{Decoder, Invocation}
+import com.goodcover.tagless.util.{PairE, WireProtocol}
+import com.goodcover.tagless.kryo.Default.LocalInjector
 import org.scalatest.flatspec.AnyFlatSpec
 
 import java.nio.ByteBuffer

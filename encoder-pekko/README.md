@@ -9,7 +9,7 @@ The macro generates implementations of `Alg[WireProtocol.Encoded]` from trait de
 ## Usage
 
 ```scala
-import com.dispalt.tagless.pekko.MacroPekkoWireProtocol
+import com.goodcover.tagless.pekko.MacroPekkoWireProtocol
 import org.apache.pekko.actor.ActorSystem
 
 // Define your algebra
@@ -170,8 +170,8 @@ args._3  // Third parameter list: c
 
 Run tests with:
 ```bash
-sbt "project encoder-pekko" "Test/runMain com.dispalt.tagless.pekko.MacroTest"
-sbt "project encoder-pekko" "Test/runMain com.dispalt.tagless.pekko.UserAlgTest"
+sbt "project encoder-pekko" "Test/runMain com.goodcover.tagless.pekko.MacroTest"
+sbt "project encoder-pekko" "Test/runMain com.goodcover.tagless.pekko.UserAlgTest"
 sbt "project encoder-pekko" "testOnly *MultipleParamListTests"  # Test nested parameter lists
 ```
 
