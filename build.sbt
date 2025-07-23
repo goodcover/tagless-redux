@@ -23,7 +23,6 @@ val deps = Seq(
 )
 
 lazy val macroAnnotationSettings = Seq(
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, _))  => Seq()
     case Some((2, 13)) => Seq("-Ymacro-annotations")
@@ -202,8 +201,6 @@ lazy val paradisePlugin = Def.setting {
 }
 
 lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
-  resolvers += Resolver.bintrayRepo("scalameta", "maven"),
   libraryDependencies ++= paradisePlugin.value
 )
 
