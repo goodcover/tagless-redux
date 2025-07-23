@@ -40,6 +40,11 @@ ThisBuild / organization := "com.goodcover.redux"
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
 ThisBuild / intellijBuild      := "251.25410.153"
+ThisBuild / publishTo          := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 
 lazy val root = (project in file("."))
   .settings(noPublishSettings)
@@ -267,7 +272,7 @@ lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/
       commitReleaseVersion,
       tagRelease,
       releaseStepCommandAndRemaining("+ publishSigned"),
-      releaseStepCommand("sonatypeBundleRelease"),
+      releaseStepCommand("sonaUpload"),
       setNextVersion,
       CustomRelease.commitNextVersion,
       pushChanges
