@@ -241,7 +241,6 @@ lazy val commonSettings = Seq(
   scalaVersion             := scala3V,
   crossScalaVersions       := Seq(scalaV, scala3V),
   organization             := "com.goodcover.redux",
-  sonatypeProfileName      := "com.goodcover",
   developers               := List(
     Developer("Dan Di Spaltro", "@dispalt", "dan.dispaltro@gmail.com", URI.create("http://dispalt.com").toURL)
   ),
@@ -257,7 +256,6 @@ lazy val commonSettings = Seq(
 
 lazy val mavenSettings: Seq[Setting[_]] = Seq( //
   publishMavenStyle := true,
-  publishTo         := sonatypePublishToBundle.value
 )
 
 lazy val publishSettings: Seq[Def.Setting[_]] = /*sharedPublishSettings(gh) ++*/ Seq(
