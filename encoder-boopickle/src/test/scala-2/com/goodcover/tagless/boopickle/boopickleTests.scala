@@ -24,7 +24,6 @@ object boopickleTests {
 
   case class Baz(i: Int) extends AnyVal
 
-  //
   trait SafeAlg2[T, E[_]] {
     def test2(s: String): E[(String, T)]
   }

@@ -231,7 +231,11 @@ class DeriveMacros(val c: blackbox.Context) {
 
   def derive[Alg[_[_]]](implicit tag: c.WeakTypeTag[Alg[Any]]): c.Tree = {
     val Alg = tag.tpe.typeConstructor.dealias
-    instantiate(symbolOf[WireProtocol[Any]], Alg)(encoder(Alg), decoder(Alg))
+    val t = instantiate(symbolOf[WireProtocol[Any]], Alg)(encoder(Alg), decoder(Alg))
+    if (System.getProperty("tagless.macro.debug", "false") == "true") {
+      println(showCode(t))
+    }
+    t
   }
 
 }

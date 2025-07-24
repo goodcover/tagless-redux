@@ -18,6 +18,7 @@ import org.scalatest.Assertion
 import scala.util.{ Failure, Success }
 
 object boopickleTests {
+  //
   final case class FooId(value: UUID) extends AnyVal
 
   object Hello
