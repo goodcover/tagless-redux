@@ -52,10 +52,11 @@ abstract class EncoderGeneratorMacro {
     unifiedBase: Tree,
     argName: TermName,
     encodeFn: Symbol,
-    decodeFn: Symbol
   ): Seq[Tree] = {
     val cases = traitStats.map {
       case q"def ${name: TermName}[..$tps](..${params: List[ValDef]}): ${Ident(someF)}[$out]" if someF == theF =>
+
+        val _             = tps
         val typeInTypeOut = params.map(p => toType(p.tpt)).toVector
 
         val arglist      = (1 to params.size).map(i => (i, s"_$i")).map { case (i, x) =>
@@ -82,7 +83,7 @@ abstract class EncoderGeneratorMacro {
             }
             $pkg.PairE(invocation, $encodeFn[$out])
          """
-      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF                                    =>
+      case q"def ${name: TermName}: ${Ident(someF)}[$out]" if someF == theF =>
         val nameLit = name.decodedName.toString
         cq"""$nameLit =>
                   val invocation = new $wireP.Invocation[$unifiedBase, $out] {
@@ -91,7 +92,7 @@ abstract class EncoderGeneratorMacro {
                   }
                   $pkg.PairE(invocation, $encodeFn[$out])
              """
-      case other                                                                                               =>
+      case other                                                            =>
         c.abort(c.enclosingPosition, s"Illegal method [$other]")
     }
     cases :+ cq"""other =>
@@ -132,7 +133,7 @@ abstract class EncoderGeneratorMacro {
               $decodeFn[$pkg.Result[Any]].apply(bytes).map {
               case $pkg.Result(key, $value) =>
                 key match {
-                  case ..${decoderCases(traitStats, theF, unifiedBase, value, encodeFn, decodeFn)}
+                  case ..${decoderCases(traitStats, theF, unifiedBase, value, encodeFn)}
                 }
               }
 

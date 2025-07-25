@@ -1,7 +1,7 @@
 package com.goodcover.tagless.boopickle
 
 import com.goodcover.tagless.util.WireProtocol
-import com.goodcover.tagless.util.WireProtocol.{Encoded, Invocation}
+import com.goodcover.tagless.util.WireProtocol.{ Encoded, Invocation }
 
 import scala.reflect.macros.blackbox
 
@@ -9,7 +9,9 @@ class DeriveMacros(val c: blackbox.Context) {
   import c.internal._
   import c.universe._
 
-  /** A reified method definition with some useful methods for transforming it. */
+  /**
+   * A reified method definition with some useful methods for transforming it.
+   */
   case class Method(m: MethodSymbol, tps: List[TypeDef], pss: List[List[ValDef]], rt: Type, body: Tree) {
     def typeArgs: List[Type] = for (tp <- tps) yield typeRef(NoPrefix, tp.symbol, Nil)
 
@@ -20,31 +22,33 @@ class DeriveMacros(val c: blackbox.Context) {
     def argLists(f: (TermName, Type) => Tree): List[List[Tree]] =
       for (ps <- pss)
         yield for (p <- ps) yield f(p.name, p.tpt.tpe)
-    def definition: Tree = q"override def ${m.name}[..$tps](...$pss): $rt = $body"
+    def definition: Tree                                        = q"override def ${m.name}[..$tps](...$pss): $rt = $body"
 
   }
 
-  /** Return the set of overridable members of `tpe`, excluding some undesired cases. */
+  /**
+   * Return the set of overridable members of `tpe`, excluding some undesired
+   * cases.
+   */
   // TODO: Figure out what to do about different visibility modifiers.
   def overridableMembersOf(tpe: Type): Iterable[Symbol] = {
     import definitions._
     val exclude = Set[Symbol](AnyClass, AnyRefClass, AnyValClass, ObjectClass)
-    tpe.members.filterNot(
-      m => m.isConstructor || m.isFinal || m.isImplementationArtifact || m.isSynthetic || exclude(m.owner)
-    )
+    tpe.members.filterNot(m => m.isConstructor || m.isFinal || m.isImplementationArtifact || m.isSynthetic || exclude(m.owner))
   }
 
-  /** Temporarily refresh type parameter names, type-check the `tree` and restore the original
-    * names.
-    *
-    * The purpose is to avoid warnings about type parameter shadowing, which can be problematic when
-    * `-Xfatal-warnings` is enabled. We know the warnings are harmless because we deal with types
-    * directly. Unfortunately `c.typecheck(tree, silent = true)` does not suppress warnings.
-    */
+  /**
+   * Temporarily refresh type parameter names, type-check the `tree` and restore
+   * the original names.
+   *
+   * The purpose is to avoid warnings about type parameter shadowing, which can
+   * be problematic when `-Xfatal-warnings` is enabled. We know the warnings are
+   * harmless because we deal with types directly. Unfortunately
+   * `c.typecheck(tree, silent = true)` does not suppress warnings.
+   */
   def typeCheckWithFreshTypeParams(tree: Tree): Tree = {
-    val typeParams = tree.collect {
-      case method: DefDef =>
-        method.tparams.map(_.symbol)
+    val typeParams = tree.collect { case method: DefDef =>
+      method.tparams.map(_.symbol)
     }.flatten
 
     val originalNames = for (tp <- typeParams) yield {
@@ -86,8 +90,10 @@ class DeriveMacros(val c: blackbox.Context) {
         Method(method, typeParams, paramLists, signature.finalResultType, q"_root_.scala.Predef.???")
       }
 
-  /** Type-check a definition of type `instance` with stubbed methods to gain more type information.
-    */
+  /**
+   * Type-check a definition of type `instance` with stubbed methods to gain
+   * more type information.
+   */
   def declare(instance: Type): Tree = {
     val stubs =
       overridableMethodsOf(instance).map(_.definition)
@@ -108,19 +114,21 @@ class DeriveMacros(val c: blackbox.Context) {
         }
 
         q"new ..$parents { ..$refinements; ..$nonEmptyMembers }"
-      case _ =>
+      case _                           =>
         q"new $algebra { ..$nonEmptyMembers }"
     }
   }
 
-  /** Create a new instance of `typeClass` for `algebra`. `rhs` should define a mapping for each
-    * method (by name) to an implementation function based on type signature.
-    */
+  /**
+   * Create a new instance of `typeClass` for `algebra`. `rhs` should define a
+   * mapping for each method (by name) to an implementation function based on
+   * type signature.
+   */
   def instantiate(typeClass: TypeSymbol, params: Type*)(rhs: (String, Type => Tree)*): Tree = {
     val impl                                                              = rhs.toMap
     val TcA                                                               = appliedType(typeClass, params: _*)
     val declaration @ ClassDef(_, _, _, Template(parents, self, members)) = declare(TcA)
-    val implementations =
+    val implementations                                                   =
       for (member <- members)
         yield member match {
           case dd: DefDef =>
@@ -128,12 +136,12 @@ class DeriveMacros(val c: blackbox.Context) {
             impl
               .get(method.name.toString)
               .fold(dd)(f => defDef(method, f(method.typeSignatureIn(TcA))))
-          case other => other
+          case other      => other
         }
 
     val definition =
       classDef(declaration.symbol, Template(parents, self, implementations))
-    typeCheckWithFreshTypeParams(q"{ $definition; new ${declaration.symbol} }")
+    typeCheckWithFreshTypeParams(q"{  $definition; new ${declaration.symbol} }")
   }
 
   def encoder(algebra: Type): (String, Type => Tree) =
@@ -181,7 +189,7 @@ class DeriveMacros(val c: blackbox.Context) {
                  val name = ${name.name.toString}
                  val algebraName = ${algebra.typeSymbol.name.toString}
                 ${if (argList.isEmpty) q"""s"$$algebraName#$$name""""
-              else q"""s"$$algebraName#$$name$$args""""}
+                else q"""s"$$algebraName#$$name$$args""""}
               }"""
 
               val members = toStringImpl :: overridableMethodsOf(Invocation).map {
@@ -231,7 +239,7 @@ class DeriveMacros(val c: blackbox.Context) {
 
   def derive[Alg[_[_]]](implicit tag: c.WeakTypeTag[Alg[Any]]): c.Tree = {
     val Alg = tag.tpe.typeConstructor.dealias
-    val t = instantiate(symbolOf[WireProtocol[Any]], Alg)(encoder(Alg), decoder(Alg))
+    val t   = instantiate(symbolOf[WireProtocol[Any]], Alg)(encoder(Alg), decoder(Alg))
     if (System.getProperty("tagless.macro.debug", "false") == "true") {
       println(showCode(t))
     }

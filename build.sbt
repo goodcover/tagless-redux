@@ -153,7 +153,6 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .settings(commonSettings ++ publishSettings)
   .settings(
     name               := "tagless-redux-ijext",
-    intellijPluginName := name.value,
     intellijPlugins += "org.intellij.scala".toPlugin,
     packageMethod      := PackagingMethod.Standalone(),
     scalaVersion       := scalaV,
@@ -211,7 +210,7 @@ lazy val macroSettings: Seq[Def.Setting[_]] = Seq(
 
 lazy val noPublishSettings: Seq[Def.Setting[_]] = Seq(publish / skip := true)
 
-lazy val buildSettings = scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+lazy val extraOptions = scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
   case Some((2, 13)) =>
     Seq(
       "-feature",
@@ -232,13 +231,14 @@ lazy val buildSettings = scalacOptions ++= (CrossVersion.partialVersion(scalaVer
       "-language:higherKinds",         // Allow higher-kinded types
       "-language:implicitConversions"  // Allow definition of implicit functions called views
     )
-
-  case _ => Seq.empty
+  case _             => Seq.empty
 })
+
+lazy val buildSettings = inConfig(Compile)(extraOptions) ++ inConfig(Test)(extraOptions)
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
-  scalaVersion             := scala3V,
+  scalaVersion             := scalaV,
   crossScalaVersions       := Seq(scalaV, scala3V),
   organization             := "com.goodcover.redux",
   developers               := List(

@@ -7,13 +7,12 @@ import java.util.UUID
 import boopickle.Default._
 import cats.Id
 import cats.tagless.tests.SafeAlg
-import cats.tagless.{Derive, FunctorK}
+import cats.tagless.{ Derive, FunctorK }
 import com.goodcover.tagless.TwoWaySimulator._
 import com.goodcover.tagless.util.WireProtocol
-import com.goodcover.tagless.boopickle.boopickleTests.{Bar, Baz, FooId, SafeAlg2}
-import org.scalatest.Assertion
+import com.goodcover.tagless.boopickle.boopickleTests.{ Bar, Baz, FooId, SafeAlg2 }
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 object boopickleTests {
   final case class FooId(value: UUID) extends AnyVal
@@ -23,6 +22,8 @@ object boopickleTests {
   case class Bar(i: Int)
 
   case class Baz(i: Int) extends AnyVal
+
+  //
 
   trait SafeAlg2[T, E[_]] {
     def test2(s: String): E[(String, T)]
@@ -50,6 +51,7 @@ class boopickleTests extends AnyFunSuite with Matchers {
   }
 
   object Foo {
+
     implicit def functorK[K]: FunctorK[Foo[K, *[_]]]                  = Derive.functorK
     implicit def wireProtocol[K: Pickler]: WireProtocol[Foo[K, *[_]]] = BoopickleWireProtocol.derive
   }
@@ -87,41 +89,39 @@ class boopickleTests extends AnyFunSuite with Matchers {
       override def divide2: Id[Float] = 1.0f
     }
 
-    val input                = 12
     val output               = mf.parseInt("12")
     val (payload, resultEnc) = wp.encoder.parseInt("12")
     val returnPayload        = wp.decoder.apply(payload)
 
     returnPayload match {
       case Failure(exception) => fail(exception)
-      case Success(value) =>
+      case Success(value)     =>
         value.second(value.first.run[Id](mf)) shouldBe BoopickleCodec.encoder[Int].apply(output)
     }
   }
 
-  private def roundTrip[A: Pickler](value: A): Assertion = {
+  private def roundTrip[A: Pickler](value: A): Unit = {
     val enc = BoopickleCodec.encoder[A].apply(value)
     val dec = BoopickleCodec.decoder[A].apply(enc)
-    dec.get shouldBe value
+    (dec.get shouldBe value): Unit
 
   }
 
   test("anyvals") {
-    roundTrip(25)
-    roundTrip(25.0f)
-    roundTrip(25.0d)
-    roundTrip(25212L)
-    roundTrip(254.toByte)
-    roundTrip(254.toChar)
-    roundTrip(24.toChar)
+    roundTrip(25): Unit
+    roundTrip(25.0f): Unit
+    roundTrip(25.0d): Unit
+    roundTrip(25212L): Unit
+    roundTrip(254.toByte): Unit
+    roundTrip(254.toChar): Unit
+    roundTrip(24.toChar): Unit
     roundTrip(())
   }
 
   test("anyvals in tuple2") {
 
-    for { i <- 0 to 1000 } {
+    for { _ <- 0 to 1000 }
       roundTrip(("foo", true))
-    }
   }
 
   test("handle case classes") {
@@ -148,9 +148,8 @@ class boopickleTests extends AnyFunSuite with Matchers {
 
   test("client/server with extra type param") {
     val actions = new SafeAlg2[Boolean, Id] {
-      override def test2(s: String): Id[(String, Boolean)] = {
+      override def test2(s: String): Id[(String, Boolean)] =
         (s, true)
-      }
     }
 
     val fooServer = server(actions)
