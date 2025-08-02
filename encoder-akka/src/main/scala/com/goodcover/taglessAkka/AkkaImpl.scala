@@ -32,9 +32,8 @@ object AkkaImpl extends AnyValGenerator {
         enc(bb, a).array()
       }
 
-      override def decode(a: Array[Byte]) = {
+      override def decode(a: Array[Byte]) =
         Try(dec(ByteBuffer.wrap(a)))
-      }
     }
 
   implicit val akkaImplDouble: AkkaImpl[Double] = anyValInstance[Double](8, _.putDouble(_))(_.getDouble())
@@ -46,10 +45,8 @@ object AkkaImpl extends AnyValGenerator {
   implicit val akkaImplUnit: AkkaImpl[Unit]     = anyValInstance[Unit](0, (b, _) => b)(_ => ())
 
   implicit val akkaImplBoolean: AkkaImpl[Boolean] =
-    anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(
-      b => b.get() == 0x01.toByte
-    )
-  implicit val akkaImplChar: AkkaImpl[Char] = anyValInstance[Char](2, _.putChar(_))(_.getChar())
+    anyValInstance[Boolean](1, (b, bool) => if (bool) b.put(1.byteValue()) else b.put(0.byteValue()))(b => b.get() == 0x01.toByte)
+  implicit val akkaImplChar: AkkaImpl[Char]       = anyValInstance[Char](2, _.putChar(_))(_.getChar())
 
 }
 
@@ -66,4 +63,3 @@ trait DefaultGenerator {
     }
   }
 }
-

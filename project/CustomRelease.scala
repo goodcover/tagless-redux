@@ -14,20 +14,19 @@ object CustomRelease {
     override def buffer[T](f: => T): T   = st.log.buffer(f)
   }
 
-  private def vcs(st: State): Vcs = {
+  private def vcs(st: State): Vcs =
     st.extract
       .get(releaseVcs)
       .getOrElse(sys.error("Aborting release. Working directory is not a repository of a recognized VCS."))
-  }
 
   lazy val commitNextVersion = { st: State => commitVersion(st, releaseNextCommitMessage) }
 
   def commitVersion: (State, TaskKey[String]) => State = { (st: State, commitMessage: TaskKey[String]) =>
-    val log     = toProcessLogger(st)
-    val file    = st.extract.get(releaseVersionFile).getCanonicalFile
-    val base    = vcs(st).baseDir.getCanonicalFile
-    val sign    = st.extract.get(releaseVcsSign)
-    val signOff = st.extract.get(releaseVcsSignOff)
+    val log          = toProcessLogger(st)
+    val file         = st.extract.get(releaseVersionFile).getCanonicalFile
+    val base         = vcs(st).baseDir.getCanonicalFile
+    val sign         = st.extract.get(releaseVcsSign)
+    val signOff      = st.extract.get(releaseVcsSignOff)
     val relativePath = IO
       .relativize(base, file)
       .getOrElse("Version file [%s] is outside of this VCS repository with base directory [%s]!" format (file, base))
