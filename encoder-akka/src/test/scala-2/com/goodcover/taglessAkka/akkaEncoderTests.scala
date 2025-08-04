@@ -4,19 +4,21 @@ import akka.actor.ActorSystem
 import cats.Id
 import cats.tagless.autoFunctorK
 import com.goodcover.tagless.util.WireProtocol
-import com.goodcover.taglessAkka.akkaEncoderTests.{Bar, Baz, SafeAlg, SafeAlg2}
+import com.goodcover.taglessAkka.akkaEncoderTests.{ Bar, Baz, SafeAlg, SafeAlg2 }
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.{matchers, Assertion}
+import org.scalatest.{ matchers, Assertion }
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import com.typesafe.config.ConfigFactory
 
 class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
   behavior of "akkaEncoder"
 
-  val cfg = ConfigFactory.parseString("""
+  val cfg = ConfigFactory
+    .parseString("""
   akka.actor.allow-java-serialization=true
-  """).withFallback(ConfigFactory.load())
+  """)
+    .withFallback(ConfigFactory.load())
 
   implicit val system: ActorSystem = ActorSystem(this.suiteName, cfg)
   import com.goodcover.tagless.TwoWaySimulator._
@@ -39,7 +41,7 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
     returnPayload match {
       case Failure(exception) => fail(exception)
-      case Success(value) =>
+      case Success(value)     =>
         value.second(value.first.run[Id](mf)) shouldBe AkkaCodecFactory.encode[String].apply(output)
     }
   }
@@ -64,18 +66,15 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
   it should "anyvals in tuple2" in {
 
-    for { i <- 0 to 1000 } {
+    for { i <- 0 to 1000 }
       roundTrip(("foo", true))
-    }
   }
 
-  it should "handle case classes" in {
+  it should "handle case classes" in
     roundTrip(Bar(1))
-  }
 
-  it should "handle anyvals" in {
+  it should "handle anyvals" in
     roundTrip(Baz(1))
-  }
 
   it should "encdec" in {
     val actions = new SafeAlg[Id] {
@@ -89,9 +88,8 @@ class akkaEncoderTests extends AnyFlatSpec with matchers.should.Matchers {
 
   it should "client/server with extra type param" in {
     val actions = new SafeAlg2[Boolean, Id] {
-      override def test2(s: String): Id[(String, Boolean)] = {
+      override def test2(s: String): Id[(String, Boolean)] =
         (s, true)
-      }
     }
 
     val fooServer = server(actions)

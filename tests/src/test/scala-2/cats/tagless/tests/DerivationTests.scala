@@ -1,6 +1,6 @@
 package cats.tagless.tests
 
-import cats.tagless.{Derive, FunctorK}
+import cats.tagless.{ Derive, FunctorK }
 //import cats.tagless.FunctorK
 
 trait Fooo[F[_]] {

@@ -1,6 +1,6 @@
 package cats.tagless.tests
 
-import cats.tagless.{autoFunctorK, finalAlg}
+import cats.tagless.{ autoFunctorK, finalAlg }
 
 //
 @finalAlg

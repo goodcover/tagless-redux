@@ -1,6 +1,6 @@
 package com.goodcover.taglessAkka
 
-import com.goodcover.tagless.util.{CodecFactory, WireProtocol}
+import com.goodcover.tagless.util.{ CodecFactory, WireProtocol }
 
 object AkkaCodecFactory extends CodecFactory[AkkaImpl] {
   override def encode[A](implicit p: AkkaImpl[A]): WireProtocol.Encoder[A] = { (a: A) =>
