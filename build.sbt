@@ -3,16 +3,18 @@ import sbtrelease.ReleaseStateTransformations.*
 
 import java.net.URI
 
-val scalaV      = "2.13.16"
-val scala3V     = "3.7.2"
-val taglessV    = "0.16.3"
-val pekkoV      = "1.0.3"
-val altooV      = "1.2.0"
-val akkaV       = "2.6.21"
-val catsV       = "2.13.0"
-val boopickleV  = "1.5.0"
-val scodecBitsV = "1.2.4"
-val scalaTestV  = "3.2.19"
+val scalaV            = "2.13.16"
+val scala3V           = "3.7.2"
+val taglessV          = "0.16.3"
+val pekkoV            = "1.0.3"
+val altooV            = "1.2.0"
+val akkaV             = "2.6.21"
+val catsV             = "2.13.0"
+val boopickleV        = "1.5.0"
+val scodecBitsV       = "1.2.4"
+val scodecCoreScala2V = "1.11.11"
+val scodecCoreScala3V = "2.3.3"
+val scalaTestV        = "3.2.19"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
@@ -140,7 +142,10 @@ lazy val `encoder-boopickle` = (project in file("encoder-boopickle"))
     libraryDependencies ++= Seq(
       "io.suzaku"  %% "boopickle"   % boopickleV,
       "org.scodec" %% "scodec-bits" % scodecBitsV,
-      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2.")) "1.11.11" else "2.3.3")
+      "org.scodec" %% "scodec-core" % (CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => scodecCoreScala2V
+        case _            => scodecCoreScala3V
+      })
     ),
     macroSettings
   )
