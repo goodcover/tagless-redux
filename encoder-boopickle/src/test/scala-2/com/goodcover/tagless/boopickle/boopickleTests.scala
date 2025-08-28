@@ -47,6 +47,7 @@ class boopickleTests extends AnyFunSuite with Matchers {
     def scdsc(s: String): F[K]
     def anotherUUID(s: UUID): F[K]
     def fooBar(s: TestClass): F[Unit]
+    def twoParams(s: String)(implicit f: Int): F[Int]
     def id: F[FooId]
   }
 
@@ -63,11 +64,12 @@ class boopickleTests extends AnyFunSuite with Matchers {
     val uuid = UUID.randomUUID
 
     val mf = new Foo[FooId, Id] {
-      override def include(i: FooId): Id[Unit]     = ()
-      override def scdsc(s: String): Id[FooId]     = FooId(UUID.fromString(s))
-      override def anotherUUID(s: UUID): Id[FooId] = FooId(s)
-      override def fooBar(s: TestClass): Id[Unit]  = ()
-      override def id: Id[FooId]                   = FooId(uuid)
+      override def include(i: FooId): Id[Unit]           = ()
+      override def scdsc(s: String): Id[FooId]           = FooId(UUID.fromString(s))
+      override def anotherUUID(s: UUID): Id[FooId]       = FooId(s)
+      override def fooBar(s: TestClass): Id[Unit]        = ()
+      override def twoParams(s: String)(implicit f: Int) = s.length * f
+      override def id: Id[FooId]                         = FooId(uuid)
     }
 
     val (bytes, result) = foo.encoder.scdsc(uuid.toString)

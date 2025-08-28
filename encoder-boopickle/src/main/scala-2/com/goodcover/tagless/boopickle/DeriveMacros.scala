@@ -173,8 +173,14 @@ class DeriveMacros(val c: blackbox.Context) {
         overridableMethodsOf(algebra)
           .foldLeft(q"""throw new IllegalArgumentException(s"Unknown type tag $$hint")""": Tree) {
             case (acc, Method(name, _, pss, TypeRef(_, _, outParams), _)) =>
-              val out     = outParams.last
-              val argList = pss.map(x => (1 to x.size).map(i => q"args.${TermName(s"_$i")}"))
+              val out      = outParams.last
+              var whichArg = 0
+              val argList  = pss.map { x =>
+                x.map { _ =>
+                  whichArg += 1
+                  q"args.${TermName(s"_$whichArg")}"
+                }
+              }
 
               val Invocation = appliedType(symbolOf[Invocation[Any, Any]], algebra, out)
 
