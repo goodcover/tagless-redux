@@ -243,7 +243,7 @@ lazy val buildSettings = inConfig(Compile)(extraOptions) ++ inConfig(Test)(extra
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
-  scalaVersion             := scala3V,
+  scalaVersion             := scalaV,
   crossScalaVersions       := Seq(scalaV, scala3V),
   organization             := "com.goodcover.redux",
   developers               := List(
