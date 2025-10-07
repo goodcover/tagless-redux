@@ -3,7 +3,7 @@ import sbtrelease.ReleaseStateTransformations.*
 
 import java.net.URI
 
-val scalaV            = "2.13.16"
+val scalaV            = "2.13.17"
 val scala3V           = "3.7.2"
 val taglessV          = "0.16.3"
 val pekkoV            = "1.0.3"
