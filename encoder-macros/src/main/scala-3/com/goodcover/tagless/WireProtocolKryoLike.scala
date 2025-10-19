@@ -120,7 +120,6 @@ object WireProtocolKryoLike {
             import WireProtocol.*
 
             { (result: Result[Any]) =>
-
               val invocation = new Invocation[Alg, result] {
                 override def run[F[_]](mf: Alg[F]): F[result] =
                   // Generate the method call dynamically
