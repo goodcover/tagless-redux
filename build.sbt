@@ -3,7 +3,7 @@ import sbtrelease.ReleaseStateTransformations.*
 
 import java.net.URI
 
-val scalaV            = "2.13.16"
+val scalaV            = "2.13.17"
 val scala3V           = "3.7.2"
 val taglessV          = "0.16.3"
 val pekkoV            = "1.0.3"
@@ -41,7 +41,7 @@ ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild      := "251.25410.153"
+ThisBuild / intellijBuild      := "251.29188.22"
 ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
