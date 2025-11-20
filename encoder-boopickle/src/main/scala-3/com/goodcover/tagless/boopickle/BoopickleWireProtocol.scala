@@ -129,7 +129,6 @@ object BoopickleWireProtocol {
                 import WireProtocol.*
 
                 { (result: UnpickleState) =>
-
                   given UnpickleState = result
                   val args            = result.unpickle[tupleT](using $impl)
 
