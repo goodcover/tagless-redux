@@ -81,11 +81,12 @@ class DeriveMacros(val c: blackbox.Context) {
         val typeParams = for (tp <- signature.typeParams) yield typeDef(tp)
         val paramLists =
           for (ps <- signature.paramLists)
-            yield for (p <- ps) yield {
-              // Only preserve the implicit modifier (e.g. drop the default parameter flag).
-              val modifiers = if (p.isImplicit) Modifiers(Flag.IMPLICIT) else Modifiers()
-              ValDef(modifiers, p.name.toTermName, TypeTree(p.typeSignatureIn(algebra)), EmptyTree)
-            }
+            yield
+              for (p <- ps) yield {
+                // Only preserve the implicit modifier (e.g. drop the default parameter flag).
+                val modifiers = if (p.isImplicit) Modifiers(Flag.IMPLICIT) else Modifiers()
+                ValDef(modifiers, p.name.toTermName, TypeTree(p.typeSignatureIn(algebra)), EmptyTree)
+              }
 
         Method(method, typeParams, paramLists, signature.finalResultType, q"_root_.scala.Predef.???")
       }
