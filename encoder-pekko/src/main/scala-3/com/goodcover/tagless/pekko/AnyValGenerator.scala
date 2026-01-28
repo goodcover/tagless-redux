@@ -14,5 +14,5 @@ trait AnyValGenerator extends com.goodcover.tagless.pekko.DefaultGenerator {}
 @experimental
 object MacroPekkoWireProtocol:
   inline def derive[Alg[_[_]]](using system: ActorSystem): WireProtocol[Alg] = ${
-    WireProtocolKryoLike.wireProtocol[Alg, PekkoImpl, PekkoCodecFactory]('{ PekkoCodecFactory })
+    WireProtocolKryoLike.wireProtocol[Alg, PekkoImpl, PekkoCodecFactory]('PekkoCodecFactory)
   }

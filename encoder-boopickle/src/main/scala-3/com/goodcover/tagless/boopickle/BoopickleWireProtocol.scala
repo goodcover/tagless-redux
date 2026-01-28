@@ -59,7 +59,7 @@ object BoopickleWireProtocol {
               val t          = '{
                 (
                   boopickle.PickleImpl
-                    .intoBytes[TupleEncoder](($name, ${ tupleArgs }))(using PickleState.pickleStateSpeed, $implTuple)
+                    .intoBytes[TupleEncoder](($name, $tupleArgs))(using PickleState.pickleStateSpeed, $implTuple)
                     .array(),
                   BoopickleCodec.decoder[result](using $implResult)
                 )
@@ -137,7 +137,7 @@ object BoopickleWireProtocol {
                       // Generate the method call dynamically
                       ${
                         // Create the method call based on the number of parameters
-                        val mfTerm    = '{ mf }.asTerm
+                        val mfTerm    = 'mf.asTerm
                         // Get the statically typed tuple from argss
                         val tupleType = dm.convertArgsToTupleType(method)
 
@@ -155,7 +155,7 @@ object BoopickleWireProtocol {
 
                             val argTerms = (1 to params.length).map { i =>
                               val fieldName = s"_$i"
-                              Select.unique('{ args }.asTerm, fieldName)
+                              Select.unique('args.asTerm, fieldName)
                             }.toList
                             val re       = Apply(Select(mfTerm, sym), argTerms).asExprOf[F[result]]
                             re
@@ -166,7 +166,7 @@ object BoopickleWireProtocol {
                             // Generate nested tuple access for each parameter list
                             val paramListArgs = argss.zipWithIndex.map { case (paramList, paramListIndex) =>
                               val paramListFieldName = s"_${paramListIndex + 1}"
-                              val paramListTerm      = Select.unique('{ args }.asTerm, paramListFieldName)
+                              val paramListTerm      = Select.unique('args.asTerm, paramListFieldName)
 
                               if (paramList.isEmpty) {
                                 // Empty parameter list - no arguments to extract
