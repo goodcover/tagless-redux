@@ -9,5 +9,5 @@ import scala.annotation.experimental
 @experimental
 object MacroKryoWireProtocol:
   inline def derive[Alg[_[_]]](using ScalaKryoSerializer): WireProtocol[Alg] = ${
-    WireProtocolKryoLike.wireProtocol[Alg, KryoImpl, KryoCodec]('{ KryoCodec })
+    WireProtocolKryoLike.wireProtocol[Alg, KryoImpl, KryoCodec]('KryoCodec)
   }
