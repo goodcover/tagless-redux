@@ -54,7 +54,7 @@ object WireProtocolKryoLike {
                 (
                   $system
                     .encode[Result[tupleT]](using $implTuple)
-                    .apply(Result($name, ${ tupleArgs })),
+                    .apply(Result($name, $tupleArgs)),
                   $system.decode[result](using $implResult)
                 )
               }.asTerm
@@ -125,7 +125,7 @@ object WireProtocolKryoLike {
                   // Generate the method call dynamically
                   ${
                     // Create the method call based on the number of parameters
-                    val mfTerm    = '{ mf }.asTerm
+                    val mfTerm    = 'mf.asTerm
                     // Get the statically typed tuple from argss
                     val tupleType = dm.convertArgsToTupleType(method)
 
@@ -147,7 +147,7 @@ object WireProtocolKryoLike {
                               ${
                                 val argTerms = (1 to params.length).map { i =>
                                   val fieldName = s"_$i"
-                                  Select.unique('{ args }.asTerm, fieldName)
+                                  Select.unique('args.asTerm, fieldName)
                                 }.toList
                                 val re       = Apply(Select(mfTerm, sym), argTerms).asExprOf[F[result]]
                                 re
@@ -164,7 +164,7 @@ object WireProtocolKryoLike {
                                 // Generate nested tuple access for each parameter list
                                 val paramListArgs = argss.zipWithIndex.map { case (paramList, paramListIndex) =>
                                   val paramListFieldName = s"_${paramListIndex + 1}"
-                                  val paramListTerm      = Select.unique('{ args }.asTerm, paramListFieldName)
+                                  val paramListTerm      = Select.unique('args.asTerm, paramListFieldName)
 
                                   if (paramList.isEmpty) {
                                     // Empty parameter list - no arguments to extract
