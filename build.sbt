@@ -226,7 +226,7 @@ lazy val extraOptions = scalacOptions ++= (CrossVersion.partialVersion(scalaVers
       "-encoding",
       "UTF-8",
       "-release",
-      "17",
+      "17",                            // Update the JDK in the github actions too.
       "-unchecked",
       "-Xlint",
       //    "-Yno-adapted-args",
