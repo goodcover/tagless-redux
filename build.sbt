@@ -41,7 +41,7 @@ ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild      := "251.29188.22"
+ThisBuild / intellijBuild      := "253.31033.53"
 ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
@@ -158,7 +158,10 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .settings(commonSettings ++ publishSettings)
   .settings(
     name               := "tagless-redux-ijext",
-    intellijPlugins += "org.intellij.scala".toPlugin,
+    intellijPlugins ++= Seq(
+      "org.intellij.scala".toPlugin,
+      "com.intellij.java".toPlugin
+    ),
     packageMethod      := PackagingMethod.Standalone(),
     scalaVersion       := scalaV,
     crossScalaVersions := Seq(scalaV),
@@ -223,7 +226,7 @@ lazy val extraOptions = scalacOptions ++= (CrossVersion.partialVersion(scalaVers
       "-encoding",
       "UTF-8",
       "-release",
-      "11",
+      "17",                            // Update the JDK in the github actions too.
       "-unchecked",
       "-Xlint",
       //    "-Yno-adapted-args",
