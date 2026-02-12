@@ -41,7 +41,7 @@ ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild      := "251.29188.22"
+ThisBuild / intellijBuild      := "253.31033.53"
 ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
