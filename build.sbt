@@ -158,7 +158,10 @@ lazy val `intellij-ijext` = (project in file("intellij-ijext"))
   .settings(commonSettings ++ publishSettings)
   .settings(
     name               := "tagless-redux-ijext",
-    intellijPlugins += "org.intellij.scala".toPlugin,
+    intellijPlugins ++= Seq(
+      "org.intellij.scala".toPlugin,
+      "com.intellij.java".toPlugin
+    ),
     packageMethod      := PackagingMethod.Standalone(),
     scalaVersion       := scalaV,
     crossScalaVersions := Seq(scalaV),
@@ -223,7 +226,7 @@ lazy val extraOptions = scalacOptions ++= (CrossVersion.partialVersion(scalaVers
       "-encoding",
       "UTF-8",
       "-release",
-      "11",
+      "17",
       "-unchecked",
       "-Xlint",
       //    "-Yno-adapted-args",
