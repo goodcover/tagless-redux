@@ -14,7 +14,7 @@ val boopickleV        = "1.5.0"
 val scodecBitsV       = "1.2.4"
 val scodecCoreScala2V = "1.11.11"
 val scodecCoreScala3V = "2.3.3"
-val scalaTestV        = "3.2.19"
+val scalaTestV        = "3.2.20"
 
 val deps = Seq(
   "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
