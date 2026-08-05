@@ -17,7 +17,7 @@ val scodecCoreScala3V = "2.3.3"
 val scalaTestV        = "3.2.19"
 
 val deps = Seq(
-  "org.scalatestplus" %% "scalacheck-1-17" % "3.2.18.0" % Test,
+  "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test,
   "org.typelevel"     %% "cats-core"       % catsV,
   "org.typelevel"     %% "cats-free"       % catsV,
   "org.scala-lang"     % "scala-reflect"   % scalaV,
