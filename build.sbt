@@ -11,7 +11,7 @@ val altooV            = "1.3.0"
 val akkaV             = "2.6.21"
 val catsV             = "2.13.0"
 val boopickleV        = "1.5.0"
-val scodecBitsV       = "1.2.4"
+val scodecBitsV       = "1.2.5"
 val scodecCoreScala2V = "1.11.11"
 val scodecCoreScala3V = "2.3.3"
 val scalaTestV        = "3.2.19"
@@ -41,7 +41,7 @@ ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
 // See https://www.jetbrains.com/intellij-repository/releases
-ThisBuild / intellijBuild      := "253.31033.53"
+ThisBuild / intellijBuild      := "253"
 ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
